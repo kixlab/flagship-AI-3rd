@@ -1,8 +1,8 @@
-# KIXLAB Flagship AI 2018 - Seongho Park
+# KIXLAB Flagship AI 2018 - 3rd Project
 
 ## Goal
 
-Sentence of words -> One category of VRM (one of 8)
+Classify a input sentence into one of 8 VRM categories
 
 - Indexing 10 thousands of corpus (from TV Show, etc)
 - Word Embedding
