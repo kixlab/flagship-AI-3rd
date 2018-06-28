@@ -13,6 +13,19 @@
 
 ## Creating Training Dataset
 
+### Creating skip-grams
+
+### 
+
 ## Training Model
 
 ## Testing the Model
+
+### t-SNE (t-Stochastcic Neighbor Embedding)
+Used for dimensionality reduction & visualization; Normally used for word2vec.
+
+SNE + Solving Crowding Problem => t-SNE
+
+## References
+
+- [t-SNE](https://ratsgo.github.io/machine%20learning/2017/04/28/tSNE/)
