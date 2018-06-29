@@ -17,4 +17,21 @@ Classify a input sentence into one of 8 VRM categories
     - Order: Embedding -> finding the best infrastructure (Tensorflow, pytorch, and etc)
 
 
-## Results (Summary)
+## Process with Options
+1. Pro-processing Data (documents -> sentences of words)
+    - **Spliting with whitespace**
+    - Removing punctuation marks
+    - Removing most common words
+    - Re-define words with each one's meaning
+    - Morpheme analyzer (형태소 분석)
+2. Word Embedding
+    - **Word2Vec**
+        - CBOW
+        - **Skip-gram**
+            - Embedding Size
+            - Word Count Size
+                - Uniform
+                - Weighted
+    - fastText
+    - LSA
+    - GloVe

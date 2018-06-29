@@ -1,23 +1,11 @@
 # Word2Vec Implementation (skip-gram)
 
 ## Process
-1. Refine data from the raw data (paragraphs -> sentences of words)
-2. Break sentence into words (Morpheme analyzer may be needed)
-3. Create training dataset (ex. create skip-gram set)
-4. Train model with the dataset
-5. Check accuracy of the model
-
-## Refining Data
-
-## Getting words from the Data
-
-## Creating Training Dataset
-
-### Creating skip-grams
-
-### 
-
-## Training Model
+0. Convert data into txt file (each line contains one sentence)
+1. Create word_list & word_dict
+2. Create skip_gram dataset
+3. Train model with the dataset
+4. Check accuracy of the model
 
 ## Testing the Model
 
@@ -29,3 +17,4 @@ SNE + Solving Crowding Problem => t-SNE
 ## References
 
 - [t-SNE](https://ratsgo.github.io/machine%20learning/2017/04/28/tSNE/)
+- [On word embeddings - Part 3: The secret ingredients of word2vec](http://ruder.io/secret-word2vec/index.html#wordembeddingsvsdistributionalsemanticsmodels)
