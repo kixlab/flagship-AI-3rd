@@ -11,23 +11,52 @@ from sklearn.manifold import TSNE
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-# 이 파일과 같은 경로에 한글 폰트 파일을 넣어주세요
-dirname = os.path.dirname(__file__)
-filename = os.path.join(dirname, 'SpoqaHanSansRegular.ttf') # 폰트 이름 바꾸기
+## VARIABLES
+IS_COLAB = False
 
-# matplot 에서 한글을 표시하기 위한 설정
-font_name = matplotlib.font_manager.FontProperties(
-    fname=filename
-            ).get_name()
-matplotlib.rc('font', family=font_name)
+FILE_NAME = 'sci-total-sentences.txt'
+WORD_COUNT = 1
+LOSS_LOG_PER = 1000
+plot_only = 100		# number of plots in result graph
+
+# 학습을 반복할 횟수
+training_epoch = 100
+# 학습률
+learning_rate = 0.1
+# 한 번에 학습할 데이터의 크기
+batch_size = 20
+# 단어 벡터를 구성할 임베딩 차원의 크기
+# 이 예제에서는 x, y 그래프로 표현하기 쉽게 2 개의 값만 출력하도록 합니다.
+# normally 50 or 200 ~ 300 (may it depends on the vocab size)
+embedding_size = 10
+# word2vec 모델을 학습시키기 위한 nce_loss 함수에서 사용하기 위한 샘플링 크기
+# batch_size 보다 작아야 합니다.
+num_sampled = 15
+
+
+if (not IS_COLAB):
+	# 파일 경로 설정
+	dirname = os.path.dirname(__file__)
+	FILE_NAME = os.path.join(os.path.join(dirname, os.pardir), 'dataset/' + FILE_NAME)
+
+    # 이 파일과 같은 경로에 한글 폰트 파일을 넣어주세요
+	font_filename = os.path.join(dirname, 'SpoqaHanSansRegular.ttf') # 폰트 이름 바꾸기
+
+    # matplot 에서 한글을 표시하기 위한 설정
+	font_name = matplotlib.font_manager.FontProperties(
+        fname=font_filename
+                ).get_name()
+	font_filename = os.path.join(dirname, 'SpoqaHanSansRegular.ttf') # 폰트 이름 바꾸기
+
+    # matplot 에서 한글을 표시하기 위한 설정
+	font_name = matplotlib.font_manager.FontProperties(
+        fname=font_filename
+                ).get_name()
+	matplotlib.rc('font', family=font_name)
 
 # 단어 벡터를 분석해볼 임의의 문장들
 def import_sentences():
-    dirname = os.path.dirname(__file__)
-    filename = os.path.join(os.path.join(dirname, os.pardir),
-                            'dataset/sci-total-sentences.txt')
-
-    with open(filename) as f:
+    with open(FILE_NAME) as f:
         data = f.read().strip()
         sentences = data.split(os.linesep)
     return sentences
@@ -64,12 +93,13 @@ word_dict_reverse = dict(zip(word_dict.values(), word_dict.keys()))
 #   -> (게임, 나), (게임, 만화), (만화, 게임), (만화, 애니), (애니, 만화), (애니, 좋다)
 skip_grams = []
 
-for i in range(1, len(word_sequence) - 1):
-    # (context, target) : ([target index - 1, target index + 1], target)
+for i in range(0, len(word_sequence)):
     # 스킵그램을 만든 후, 저장은 단어의 고유 번호(index)로 저장합니다
     target = word_dict[word_sequence[i]]
-    context = [word_dict[word_sequence[i - 1]],
-               word_dict[word_sequence[i + 1]]]
+    context = []
+    start_index = (i - WORD_COUNT) if (i > WORD_COUNT) else 0
+    for word in word_sequence[start_index:(i + WORD_COUNT)]:
+        context.append(word_dict[word])
 
     # (target, context[0]), (target, context[1])..
     for w in context:
@@ -92,18 +122,7 @@ def random_batch(data, size):
 #########
 # 옵션 설정
 ######
-# 학습을 반복할 횟수
-training_epoch = 300
-# 학습률
-learning_rate = 0.1
-# 한 번에 학습할 데이터의 크기
-batch_size = 20
-# 단어 벡터를 구성할 임베딩 차원의 크기
-# 이 예제에서는 x, y 그래프로 표현하기 쉽게 2 개의 값만 출력하도록 합니다.
-embedding_size = 2
-# word2vec 모델을 학습시키기 위한 nce_loss 함수에서 사용하기 위한 샘플링 크기
-# batch_size 보다 작아야 합니다.
-num_sampled = 15
+# 다른 설정은 최상단 VARIABLES에 포함되어 있습니다.
 # 총 단어 갯수
 voc_size = len(word_list)
 
@@ -139,6 +158,9 @@ loss = tf.reduce_mean(
 
 train_op = tf.train.AdamOptimizer(learning_rate).minimize(loss)
 
+tf.Variable(word_list, name='word_list')
+
+
 
 #########
 # 신경망 모델 학습
@@ -147,6 +169,7 @@ with tf.Session() as sess:
     init = tf.global_variables_initializer()
     sess.run(init)
 
+    total_loss = 0
     for step in range(1, training_epoch + 1):
         batch_inputs, batch_labels = random_batch(skip_grams, batch_size)
 
@@ -154,9 +177,12 @@ with tf.Session() as sess:
                                feed_dict={inputs: batch_inputs,
                                           labels: batch_labels})
 
-        if step % 10 == 0:
-            print("loss at step ", step, ": ", loss_val)
+        total_loss += loss_val
+        if step % LOSS_LOG_PER == 0:
+            print("loss from", (step - LOSS_LOG_PER), " step ", step, ": ", (total_loss / LOSS_LOG_PER))
+            total_loss = 0
 
+    
     # matplot 으로 출력하여 시각적으로 확인해보기 위해
     # 임베딩 벡터의 결과 값을 계산하여 저장합니다.
     # with 구문 안에서는 sess.run 대신 간단히 eval() 함수를 사용할 수 있습니다.
@@ -167,38 +193,37 @@ with tf.Session() as sess:
 # 임베딩된 Word2Vec 결과 확인
 # 결과는 해당 단어들이 얼마나 다른 단어와 인접해 있는지를 보여줍니다.
 ######
-for i, label in enumerate(word_list):
-    x, y = trained_embeddings[i]
-    plt.scatter(x, y)
-    plt.annotate(label, xy=(x, y), xytext=(5, 2),
-                 textcoords='offset points', ha='right', va='bottom')
-
-plt.show()
-
-
-# def plot_with_labels(low_dim_embs, labels, filename='tsne2.png'):
-#   assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
-#   plt.figure(figsize=(18, 18))  # in inches
-#   for i, label in enumerate(labels):
-#     x, y = low_dim_embs[i, :]
+# for i, label in enumerate(word_list):
+#     x, y = trained_embeddings[i]
 #     plt.scatter(x, y)
-#     plt.annotate(label,
-#                  xy=(x, y),
-#                  xytext=(5, 2),
-#                  textcoords='offset points',
-#                  ha='right',
-#                  va='bottom')
+#     plt.annotate(label, xy=(x, y), xytext=(5, 2),
+#                  textcoords='offset points', ha='right', va='bottom')
 
-#   plt.savefig(filename)
+# plt.show()
 
 
-# try:
-#   tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=1000)
-#   plot_only = 100
-#   plot_only = len(word_dict) if (len(word_dict) > plot_only) else plot_only
-#   low_dim_embs = tsne.fit_transform(trained_embeddings[:plot_only, :])
-#   labels = [word_dict_reverse[i] for i in range(len(word_dict))]
-#   plot_with_labels(low_dim_embs, labels)
+def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
+  assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
+  plt.figure(figsize=(18, 18))  # in inches
+  for i, label in enumerate(labels):
+    x, y = low_dim_embs[i, :]
+    plt.scatter(x, y)
+    plt.annotate(label,
+                 xy=(x, y),
+                 xytext=(5, 2),
+                 textcoords='offset points',
+                 ha='right',
+                 va='bottom')
 
-# except ImportError:
-#   print("Please install sklearn and matplotlib to visualize embeddings.")
+  plt.savefig(filename)
+
+
+try:
+  tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=1000)
+  plot_only = len(word_dict) if (len(word_dict) < plot_only) else plot_only
+  low_dim_embs = tsne.fit_transform(trained_embeddings[:plot_only, :])
+  labels = [word_dict_reverse[i] for i in range(plot_only)]
+  plot_with_labels(low_dim_embs, labels)
+
+except ImportError:
+  print("Please install sklearn and matplotlib to visualize embeddings.")

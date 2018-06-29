@@ -1,14 +1,24 @@
 # -*- coding: utf-8 -*-
 
 import os
+import tensorflow as tf
 
 dirname = os.path.dirname(__file__)
-filename = os.path.join(os.path.join(dirname, os.pardir), 'dataset/sci-total-sentences.txt')
 
-with open(filename) as f:
-  data = f.read().strip()
-  sentences = data.split(os.linesep)
-print(sentences)
-# import sys
+# x = tf.get_variable('x', shape=[2])
+x = tf.Variable([1,2], name="x")
 
-# print(sys.stdin.encoding)
+saver = tf.train.Saver()
+
+with tf.Session() as sess:
+  init = tf.global_variables_initializer()
+  sess.run(init)
+
+  
+  # save_path = saver.save(sess, os.path.join(dirname, "tmp/test.ckpt"))
+  # print("Model saved in path: %s" % save_path)
+
+  saver.restore(sess, os.path.join(dirname, "tmp/test.ckpt"))
+  print("Model restored.")
+  # Check the values of the variables
+  print(x.eval())

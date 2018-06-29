@@ -15,8 +15,11 @@
 ## Google Colab
 Google's cutom verison of Jupyter Notebook. It uses google's own virtual machine. (For research & education)
 
+Save data files into personal drive and using them for training
+
 
 ## References
 - [TensorFlow vs PyTorch by. Sai Raj Reddy](https://medium.com/@UdacityINDIA/tensorflow-vs-pytorch-79e7a23f48c5)
 - [PyTorch vs. TensorFlow: 1 month summary](https://towardsdatascience.com/pytorch-vs-tensorflow-1-month-summary-35d138590f9)
 - [Google Colab - 기본 지식 알고가기](https://brunch.co.kr/@jayden-factory/11)
+- [Google Colab - 로컬PC에서 파일 업로드하기](https://brunch.co.kr/@jayden-factory/18)

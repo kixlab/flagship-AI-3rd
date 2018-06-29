@@ -4,8 +4,6 @@
 
 > “Turns positive integers (indexes) into dense vectors of fixed size”
 
-In Word Embedding, integers become "words".
-
 ## Core Idea for Word Embedding
 
 ### VSM (Vector Space Model)
@@ -98,6 +96,8 @@ More accurate on noisy samples, but fastText takes more long time to training
 - [GloVe: Global Vectors for Word Representation](https://nlp.stanford.edu/projects/glove/)
 - [awesome-embedding-models](https://github.com/Hironsan/awesome-embedding-models)
 - [Awesome Korean NLP](https://github.com/datanada/Awesome-Korean-NLP)
+- [
+Word Embedding의 직관적인 이해 : Count Vector에서 Word2Vec에 이르기까지](https://www.nextobe.com/single-post/2017/06/20/Word-Embedding%EC%9D%98-%EC%A7%81%EA%B4%80%EC%A0%81%EC%9D%B8-%EC%9D%B4%ED%95%B4-Count-Vector%EC%97%90%EC%84%9C-Word2Vec%EC%97%90-%EC%9D%B4%EB%A5%B4%EA%B8%B0%EA%B9%8C%EC%A7%80)
 
 ### Paper
 - [Camacho-Collados, Pilehvar,
