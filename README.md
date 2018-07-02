@@ -18,7 +18,7 @@ Classify a input sentence into one of 8 VRM categories
 
 
 ## Process with Options
-1. Pro-processing Data (documents -> sentences of words)
+1. Tokenizing Data (documents -> sentences of words)
     - **Spliting with whitespace**
     - Removing punctuation marks
     - Removing most common words
@@ -31,7 +31,9 @@ Classify a input sentence into one of 8 VRM categories
             - Embedding Size
             - Word Count Size
                 - Uniform
-                - Weighted
+                - Weighed
+            - Order of training
+                - **Random (epoch & batch size)**
     - fastText
     - LSA
     - GloVe

@@ -16,5 +16,9 @@ SNE + Solving Crowding Problem => t-SNE
 
 ## References
 
+### For Understanding
 - [t-SNE](https://ratsgo.github.io/machine%20learning/2017/04/28/tSNE/)
 - [On word embeddings - Part 3: The secret ingredients of word2vec](http://ruder.io/secret-word2vec/index.html#wordembeddingsvsdistributionalsemanticsmodels)
+
+### For Implementing
+- [TensorFlow: Save and Restore Models](http://stackabuse.com/tensorflow-save-and-restore-models/)

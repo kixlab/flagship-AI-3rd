@@ -61,6 +61,14 @@ Predict surrounding words with a word
 - low on memory; improve performance by using Hierarchical Softmax & Negative Sampling (V to ln(V))
 - CBOW is faster with small dataset, but Skip-gram is faster with large dataset
 
+### Etc
+
+#### LSA
+- Latent Semantic Analysis
+- Diminish the number of dimension of data like Word-Document Matrix, window based o-occurrence matrix with SVD method
+- Produce word-dimension & dimension-dimension & dismension-sentence matrices
+- Not heavy methodology, but needs caculation again when data is changed
+
 ## Applications
 
 ### Word2Vec
@@ -97,9 +105,14 @@ More accurate on noisy samples, but fastText takes more long time to training
 - [awesome-embedding-models](https://github.com/Hironsan/awesome-embedding-models)
 - [Awesome Korean NLP](https://github.com/datanada/Awesome-Korean-NLP)
 - [
-Word Embedding의 직관적인 이해 : Count Vector에서 Word2Vec에 이르기까지](https://www.nextobe.com/single-post/2017/06/20/Word-Embedding%EC%9D%98-%EC%A7%81%EA%B4%80%EC%A0%81%EC%9D%B8-%EC%9D%B4%ED%95%B4-Count-Vector%EC%97%90%EC%84%9C-Word2Vec%EC%97%90-%EC%9D%B4%EB%A5%B4%EA%B8%B0%EA%B9%8C%EC%A7%80)
+Word Embedding의 직관적인 이해 : Count Vector에서 Word2Vec에 이르기까지](https://www.nextobe.com/single-post/2017/06/20/Word-Embedding%EC%9D%98-%EC%A7%81%
+- [SVD와 PCA, 그리고 잠재의미분석(LSA)](https://ratsgo.github.io/from%20frequency%20to%20semantics/2017/04/06/pcasvdlsa/)
 
 ### Paper
-- [Camacho-Collados, Pilehvar,
-From Word to Sense Embeddings: A Survey on Vector Representations of Meaning (2018)](https://arxiv.org/abs/1805.04032)
-- [최상혁, 음절 기반 한국어 단어 임베팅 모델 및 학습 기법 (2017)](http://s-space.snu.ac.kr/bitstream/10371/122708/1/000000142646.pdf)
+- [Camacho-Collados, Pilehvar (2018),
+From Word to Sense Embeddings: A Survey on Vector Representations of Meaning](https://arxiv.org/abs/1805.04032)
+- [Altszyler et al. (2017), Comparative study of LSA vs Word2vec embeddings
+in small corpora: a case study in dreams database](https://arxiv.org/pdf/1610.01520.pdf)
+- [Landauer, T. K., Foltz, P. W., & Laham, D. (1998).
+ Introduction to Latent Semantic Analysis.]
+- [최상혁 (2017), 음절 기반 한국어 단어 임베팅 모델 및 학습 기법](http://s-space.snu.ac.kr/bitstream/10371/122708/1/000000142646.pdf)

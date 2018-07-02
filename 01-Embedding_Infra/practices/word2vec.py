@@ -7,6 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import csv
 from sklearn.manifold import TSNE
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -15,8 +16,11 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 IS_COLAB = False
 
 FILE_NAME = 'sci-total-sentences.txt'
+SAVE_DICT_NAME = 'sci-total-dict-plain.csv'     # File name MUST be *.csv
+SAVE_MODEL_NAME = 'model/test'
 WORD_COUNT = 1
-LOSS_LOG_PER = 1000
+LOSS_LOG_PER = 10
+SAVING_MODEL_PER = 50
 plot_only = 100		# number of plots in result graph
 
 # 학습을 반복할 횟수
@@ -87,6 +91,13 @@ word_list = list(set(word_list))
 word_dict = {w: i for i, w in enumerate(word_list)}
 word_dict_reverse = dict(zip(word_dict.values(), word_dict.keys()))
 
+# Save word dict into csv file for further uses.
+# with open(SAVE_DICT_NAME, 'w', newline='') as csvfile:
+#     writer = csv.writer(csvfile)
+#     for key in word_dict:
+#         writer.writerow([key, word_dict[key]])
+#     print('Word dict is saved!')
+
 # 윈도우 사이즈를 1 로 하는 skip-gram 모델을 만듭니다.
 # 예) 나 게임 만화 애니 좋다
 #   -> ([나, 만화], 게임), ([게임, 애니], 만화), ([만화, 좋다], 애니)
@@ -134,10 +145,13 @@ inputs = tf.placeholder(tf.int32, shape=[batch_size])
 # tf.nn.nce_loss 를 사용하려면 출력값을 이렇게 [batch_size, 1] 구성해야합니다.
 labels = tf.placeholder(tf.int32, shape=[batch_size, 1])
 
+# Save word_dict as array form
+tf.Variable([word_dict_reverse[i] for i in range(len(word_dict_reverse))], name="word_dict_array")
+
 # word2vec 모델의 결과 값인 임베딩 벡터를 저장할 변수입니다.
 # 총 단어 갯수와 임베딩 갯수를 크기로 하는 두 개의 차원을 갖습니다.
 embeddings = tf.Variable(tf.random_uniform(
-    [voc_size, embedding_size], -1.0, 1.0))
+    [voc_size, embedding_size], -1.0, 1.0), name="embeddings")
 # 임베딩 벡터의 차원에서 학습할 입력값에 대한 행들을 뽑아옵니다.
 # 예) embeddings     inputs    selected
 #    [[1, 2, 3]  -> [2, 3] -> [[2, 3, 4]
@@ -148,8 +162,8 @@ selected_embed = tf.nn.embedding_lookup(embeddings, inputs)
 
 # nce_loss 함수에서 사용할 변수들을 정의합니다.
 nce_weights = tf.Variable(tf.random_uniform(
-    [voc_size, embedding_size], -1.0, 1.0))
-nce_biases = tf.Variable(tf.zeros([voc_size]))
+    [voc_size, embedding_size], -1.0, 1.0), name="nce_weights")
+nce_biases = tf.Variable(tf.zeros([voc_size]), name="nce_biases")
 
 # nce_loss 함수를 직접 구현하려면 매우 복잡하지만,
 # 함수를 텐서플로우가 제공하므로 그냥 tf.nn.nce_loss 함수를 사용하기만 하면 됩니다.
@@ -169,7 +183,10 @@ with tf.Session() as sess:
     init = tf.global_variables_initializer()
     sess.run(init)
 
+    saver = tf.train.Saver()
+
     total_loss = 0
+    print("Training Start!")
     for step in range(1, training_epoch + 1):
         batch_inputs, batch_labels = random_batch(skip_grams, batch_size)
 
@@ -179,8 +196,16 @@ with tf.Session() as sess:
 
         total_loss += loss_val
         if step % LOSS_LOG_PER == 0:
-            print("loss from", (step - LOSS_LOG_PER), " step ", step, ": ", (total_loss / LOSS_LOG_PER))
+            # print("loss from", (step - LOSS_LOG_PER), " step ", step, ": ", (total_loss / LOSS_LOG_PER))
+            print("loss from step %6d to %6d : %f" % ((step - LOSS_LOG_PER), step, (total_loss / LOSS_LOG_PER)))
             total_loss = 0
+
+        if step % SAVING_MODEL_PER == 0:
+            saver.save(sess, SAVE_MODEL_NAME, global_step=step)
+            print("Model with %d iterations is saved." % step)
+
+    saver.save(sess, SAVE_MODEL_NAME + "_final")
+    print("Final model saved!")
 
     
     # matplot 으로 출력하여 시각적으로 확인해보기 위해
