@@ -102,3 +102,13 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+## Custom
+
+# VS_Code
+.vscode/
+
+# Ignore specific folders
+scripts/
+refs/
+results/
