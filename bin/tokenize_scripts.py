@@ -1,14 +1,17 @@
-from os import listdir
-from os.path import isfile, join, dirname
+from os import listdir, remove, makedirs
+from os.path import isfile, join, dirname, exists, basename
 import re
 import json
 import zipfile
 
 ## Varaibles
-read_zip_file = '../scripts/test.zip'
-write_zip_file = '../results/test.zip'
-read_directory = '../scripts'
-write_directory = '../results'
+# All of directories must exist
+read_zip_file = '../scripts/test2.zip'
+write_zip_file = '../results/test2.zip'
+# read_directory = '../scripts'
+write_directory = '.'  # For temp files to be zipped
+
+log_per = 3
 
 ## Regex for tokenizing words
 token_re = re.compile('([0-9]+[.][0-9]+|[0-9A-Za-zㄱ-ㅎㅏ-ㅢ가-힣]+|\.\.+|\.|\?|\!|\,)')
@@ -29,13 +32,18 @@ def tokenize_sentence(s):
 
 ## Main
 
-dn = dirname(__file__)
-
 with zipfile.ZipFile(read_zip_file, 'r') as z:
-  for fn in z.namelist():
-    print("Parsing file: %s" % fn)
-    # read_path = join(dn, read_directory, fn)
-    write_path = join(write_directory, fn)
+  print("Open script ZIP file")
+  zip_info = z.infolist()
+
+  for idx, zi in enumerate(zip_info):
+    fn = zi.filename
+    if (not fn.endswith('.json')):
+      continue
+
+    if (idx + 1) % log_per == 0:
+      print("Parsing file %6d: %s" % (idx+1, fn))
+    write_path = join(write_directory, basename(fn))
     result_json = []
 
     with z.open(fn, 'r') as readfile:
@@ -52,7 +60,9 @@ with zipfile.ZipFile(read_zip_file, 'r') as z:
           result.append(result_dialog)
         json.dump(result, writefile, ensure_ascii=False)
 
-    with zipfile.ZipFile(write_zip_file, 'w') as z:
-      file_names = [f for f in listdir(write_directory) if (isfile(join(write_directory, f)) and f.endswith('.json'))]
-      for f in file_names:
-        z.write(join(write_directory, f), arcname=f)
+with zipfile.ZipFile(write_zip_file, 'w') as z:
+  file_names = [f for f in listdir(write_directory) if (isfile(join(write_directory, f)) and f.endswith('.json'))]
+  for f in file_names:
+    f_path = join(write_directory, f)
+    z.write(f_path, arcname=f)
+    remove(f_path)
