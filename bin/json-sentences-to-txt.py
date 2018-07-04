@@ -22,6 +22,14 @@ def convert_scripts(direc, log_per):
       if (idx % log_per == 0):
         print("Converting step %6d" % idx)
 
+def cut_sentences(filename, line_num):
+  with open(filename, 'r') as readfile:
+    sentences = readfile.read().strip().split(os.linesep)
+    filename_pure, extension = os.path.splitext(filename)
+    with open(filename_pure + '-%d' % line_num + extension, 'w') as writefile:
+      for s in sentences[:line_num]:
+        writefile.write(s + os.linesep)
+
 def convert_sci_news():
   SUB_DIRECTORY = 'dataset/sci-news-sum-kr-50/data/'
 
@@ -39,4 +47,5 @@ def convert_sci_news():
       f.write(sentence + os.linesep)
 
 ## Main
-convert_scripts(directory, log_per)
+# convert_scripts(directory, log_per)
+cut_sentences('../results/token-scripts-plain.txt', 100000)
