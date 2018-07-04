@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import csv
+import time
+import datetime
 from sklearn.manifold import TSNE
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -15,13 +17,15 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 ## VARIABLES
 IS_COLAB = False
 
-FILE_NAME = 'sci-total-sentences.txt'
-SAVE_DICT_NAME = 'sci-total-dict-plain.csv'     # File name MUST be *.csv
-SAVE_MODEL_NAME = 'model/test'
+FILE_NAME = '../results/token-scripts-plain-100000.txt'
+SAVE_MODEL_NAME = 'model/scripts-test'
 WORD_COUNT = 1
-LOSS_LOG_PER = 10
-SAVING_MODEL_PER = 50
+LOSS_LOG_PER = 20
+SAVING_MODEL_PER = 20000
 plot_only = 100		# number of plots in result graph
+
+training_sentences = 100000
+start_sentence = 0
 
 # 학습을 반복할 횟수
 training_epoch = 100
@@ -32,11 +36,63 @@ batch_size = 20
 # 단어 벡터를 구성할 임베딩 차원의 크기
 # 이 예제에서는 x, y 그래프로 표현하기 쉽게 2 개의 값만 출력하도록 합니다.
 # normally 50 or 200 ~ 300 (may it depends on the vocab size)
-embedding_size = 10
+embedding_size = 50
 # word2vec 모델을 학습시키기 위한 nce_loss 함수에서 사용하기 위한 샘플링 크기
 # batch_size 보다 작아야 합니다.
 num_sampled = 15
 
+## Functions
+def get_current_datetime():
+    ts = time.time()
+    return datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+
+def import_file(file_name):
+    print("[%s] Import file..." % get_current_datetime())
+    with open(file_name, 'rb') as f:
+        sentences = [l.decode('utf8', 'ignore')
+                     for l in f.readlines()][start_sentence:training_sentences]
+
+    print("[%s] Create word list..." % get_current_datetime())
+    word_list = " ".join(sentences).split()
+    word_list = list(set(word_list))
+    # 문자열로 분석하는 것 보다, 숫자로 분석하는 것이 훨씬 용이하므로
+    # 리스트에서 문자들의 인덱스를 뽑아서 사용하기 위해,
+    # 이를 표현하기 위한 연관 배열과, 단어 리스트에서 단어를 참조 할 수 있는 인덱스 배열을 만듭합니다.
+    word_dict = {w: i for i, w in enumerate(word_list)}
+    word_dict_reverse = dict(zip(word_dict.values(), word_dict.keys()))
+
+    # Create skip-gram
+    print("[%s] Create skip-grams..." % get_current_datetime())
+    skip_grams = []
+    for s in sentences:
+        words = s.strip().split(' ')
+        for i, word in enumerate(words):
+            target = word_dict[word]
+            context = []
+            start_index = (i - WORD_COUNT) if (i > WORD_COUNT) else 0
+            for close_word in words[start_index:(i + WORD_COUNT)]:
+                context.append(word_dict[close_word])
+
+            # (target, context[0]), (target, context[1])..
+            for w in context:
+                skip_grams.append([target, w])
+
+    return word_list, word_dict, word_dict_reverse, skip_grams
+
+# skip-gram 데이터에서 무작위로 데이터를 뽑아 입력값과 출력값의 배치 데이터를 생성하는 함수
+def random_batch(data, size):
+    random_inputs = []
+    random_labels = []
+    random_index = np.random.choice(range(len(data)), size, replace=False)
+
+    for i in random_index:
+        random_inputs.append(data[i][0])  # target
+        random_labels.append([data[i][1]])  # context word
+
+    return random_inputs, random_labels
+
+
+## Main
 
 if (not IS_COLAB):
 	# 파일 경로 설정
@@ -58,77 +114,26 @@ if (not IS_COLAB):
                 ).get_name()
 	matplotlib.rc('font', family=font_name)
 
-# 단어 벡터를 분석해볼 임의의 문장들
-def import_sentences():
-    with open(FILE_NAME) as f:
-        data = f.read().strip()
-        sentences = data.split(os.linesep)
-    return sentences
+word_list, word_dict, word_dict_reverse, skip_grams = import_file(FILE_NAME)
 
-# sentences = ["나 고양이 좋다",
-#              "나 강아지 좋다",
-#              "나 동물 좋다",
-#              "강아지 고양이 동물",
-#              "여자친구 고양이 강아지 좋다",
-#              "고양이 생선 우유 좋다",
-#              "강아지 생선 싫다 우유 좋다",
-#              "강아지 고양이 눈 좋다",
-#              "나 여자친구 좋다",
-#              "여자친구 나 싫다",
-#              "여자친구 나 영화 책 음악 좋다",
-#              "나 게임 만화 애니 좋다",
-#              "고양이 강아지 싫다",
-#              "강아지 고양이 좋다"]
-sentences = import_sentences()
-
-# 문장을 전부 합친 후 공백으로 단어들을 나누고 고유한 단어들로 리스트를 만듭니다.
-word_sequence = " ".join(sentences).split()
-word_list = " ".join(sentences).split()
-word_list = list(set(word_list))
-# 문자열로 분석하는 것 보다, 숫자로 분석하는 것이 훨씬 용이하므로
-# 리스트에서 문자들의 인덱스를 뽑아서 사용하기 위해,
-# 이를 표현하기 위한 연관 배열과, 단어 리스트에서 단어를 참조 할 수 있는 인덱스 배열을 만듭합니다.
-word_dict = {w: i for i, w in enumerate(word_list)}
-word_dict_reverse = dict(zip(word_dict.values(), word_dict.keys()))
-
-# Save word dict into csv file for further uses.
-# with open(SAVE_DICT_NAME, 'w', newline='') as csvfile:
-#     writer = csv.writer(csvfile)
-#     for key in word_dict:
-#         writer.writerow([key, word_dict[key]])
-#     print('Word dict is saved!')
 
 # 윈도우 사이즈를 1 로 하는 skip-gram 모델을 만듭니다.
 # 예) 나 게임 만화 애니 좋다
 #   -> ([나, 만화], 게임), ([게임, 애니], 만화), ([만화, 좋다], 애니)
 #   -> (게임, 나), (게임, 만화), (만화, 게임), (만화, 애니), (애니, 만화), (애니, 좋다)
-skip_grams = []
+# skip_grams = []
 
-for i in range(0, len(word_sequence)):
-    # 스킵그램을 만든 후, 저장은 단어의 고유 번호(index)로 저장합니다
-    target = word_dict[word_sequence[i]]
-    context = []
-    start_index = (i - WORD_COUNT) if (i > WORD_COUNT) else 0
-    for word in word_sequence[start_index:(i + WORD_COUNT)]:
-        context.append(word_dict[word])
+# for i in range(0, len(word_sequence)):
+#     # 스킵그램을 만든 후, 저장은 단어의 고유 번호(index)로 저장합니다
+#     target = word_dict[word_sequence[i]]
+#     context = []
+#     start_index = (i - WORD_COUNT) if (i > WORD_COUNT) else 0
+#     for word in word_sequence[start_index:(i + WORD_COUNT)]:
+#         context.append(word_dict[word])
 
-    # (target, context[0]), (target, context[1])..
-    for w in context:
-        skip_grams.append([target, w])
-
-
-# skip-gram 데이터에서 무작위로 데이터를 뽑아 입력값과 출력값의 배치 데이터를 생성하는 함수
-def random_batch(data, size):
-    random_inputs = []
-    random_labels = []
-    random_index = np.random.choice(range(len(data)), size, replace=False)
-
-    for i in random_index:
-        random_inputs.append(data[i][0])  # target
-        random_labels.append([data[i][1]])  # context word
-
-    return random_inputs, random_labels
-
+#     # (target, context[0]), (target, context[1])..
+#     for w in context:
+#         skip_grams.append([target, w])
 
 #########
 # 옵션 설정
@@ -186,7 +191,7 @@ with tf.Session() as sess:
     saver = tf.train.Saver()
 
     total_loss = 0
-    print("Training Start!")
+    print("[%s] Training Start!" % get_current_datetime())
     for step in range(1, training_epoch + 1):
         batch_inputs, batch_labels = random_batch(skip_grams, batch_size)
 
@@ -197,15 +202,15 @@ with tf.Session() as sess:
         total_loss += loss_val
         if step % LOSS_LOG_PER == 0:
             # print("loss from", (step - LOSS_LOG_PER), " step ", step, ": ", (total_loss / LOSS_LOG_PER))
-            print("loss from step %6d to %6d : %f" % ((step - LOSS_LOG_PER), step, (total_loss / LOSS_LOG_PER)))
+            print("[%s] loss from step %6d to %6d : %f" % (get_current_datetime(), (step - LOSS_LOG_PER), step, (total_loss / LOSS_LOG_PER)))
             total_loss = 0
 
         if step % SAVING_MODEL_PER == 0:
             saver.save(sess, SAVE_MODEL_NAME, global_step=step)
-            print("Model with %d iterations is saved." % step)
+            print("[%s] Model with %d iterations is saved." % (get_current_datetime(), step))
 
     saver.save(sess, SAVE_MODEL_NAME + "_final")
-    print("Final model saved!")
+    print("[%s] Final model saved!" % get_current_datetime())
 
     
     # matplot 으로 출력하여 시각적으로 확인해보기 위해
@@ -214,41 +219,29 @@ with tf.Session() as sess:
     trained_embeddings = embeddings.eval()
 
 
-#########
-# 임베딩된 Word2Vec 결과 확인
-# 결과는 해당 단어들이 얼마나 다른 단어와 인접해 있는지를 보여줍니다.
-######
-# for i, label in enumerate(word_list):
-#     x, y = trained_embeddings[i]
+
+# def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
+#   assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
+#   plt.figure(figsize=(18, 18))  # in inches
+#   for i, label in enumerate(labels):
+#     x, y = low_dim_embs[i, :]
 #     plt.scatter(x, y)
-#     plt.annotate(label, xy=(x, y), xytext=(5, 2),
-#                  textcoords='offset points', ha='right', va='bottom')
+#     plt.annotate(label,
+#                  xy=(x, y),
+#                  xytext=(5, 2),
+#                  textcoords='offset points',
+#                  ha='right',
+#                  va='bottom')
 
-# plt.show()
-
-
-def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
-  assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
-  plt.figure(figsize=(18, 18))  # in inches
-  for i, label in enumerate(labels):
-    x, y = low_dim_embs[i, :]
-    plt.scatter(x, y)
-    plt.annotate(label,
-                 xy=(x, y),
-                 xytext=(5, 2),
-                 textcoords='offset points',
-                 ha='right',
-                 va='bottom')
-
-  plt.savefig(filename)
+#   plt.savefig(filename)
 
 
-try:
-  tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=1000)
-  plot_only = len(word_dict) if (len(word_dict) < plot_only) else plot_only
-  low_dim_embs = tsne.fit_transform(trained_embeddings[:plot_only, :])
-  labels = [word_dict_reverse[i] for i in range(plot_only)]
-  plot_with_labels(low_dim_embs, labels)
+# try:
+#   tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=1000)
+#   plot_only = len(word_dict) if (len(word_dict) < plot_only) else plot_only
+#   low_dim_embs = tsne.fit_transform(trained_embeddings[:plot_only, :])
+#   labels = [word_dict_reverse[i] for i in range(plot_only)]
+#   plot_with_labels(low_dim_embs, labels)
 
-except ImportError:
-  print("Please install sklearn and matplotlib to visualize embeddings.")
+# except ImportError:
+#   print("Please install sklearn and matplotlib to visualize embeddings.")
