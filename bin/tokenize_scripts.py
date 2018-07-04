@@ -69,7 +69,7 @@ with zipfile.ZipFile(read_zip_file, 'r') as z:
     tmp_files = listdir(tmp_directory)
     for f in tmp_files:
       shutil.move(join(tmp_directory, f), join(write_directory, f))
-    print("Move the last files from tmp to dest folder!")
+  print("Move the last files from tmp to dest folder!")
 
 # with zipfile.ZipFile(write_zip_file, 'w') as z:
 #   file_names = [f for f in listdir(write_directory) if (isfile(join(write_directory, f)) and f.endswith('.json'))]
