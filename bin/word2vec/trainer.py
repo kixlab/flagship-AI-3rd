@@ -1,3 +1,4 @@
+# Seongho's word2vec traniner v0.1
 # Code From globin's TensorFlow Tutorials
 # https://github.com/golbin/TensorFlow-Tutorials/blob/master/04%20-%20Neural%20Network%20Basic/03%20-%20Word2Vec.py
 
