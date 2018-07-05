@@ -97,8 +97,39 @@ def show_counts_log_scale(filename, scale = 2):
   for k in sorted(result.keys()):
     print('Scale %2d: %7d' % (k, result[k]))
 
+
+def create_word_list(words_fn, output_fn, min_frequency = 5, log_per = 100000):
+  word_list = []   # Words present over min_frequency
+
+  # Load freuqent words list
+  print('[%s] Load words...' % uu.get_current_datetime())
+  with open(words_fn, 'r') as read_words:
+    word_dict = json.load(read_words)
+    for k in word_dict.keys():
+      if int(word_dict[k]) >= min_frequency:
+        word_list.append(k)
+  print('[%s] Complete to load words; total %d of %d words' % (uu.get_current_datetime(), len(word_list), len(word_dict)))
+  
+  uu.print_dt('Saving word_list into %s ...' % output_fn)
+  with open(output_fn, 'w') as writefile:
+    for w in word_list:
+      writefile.write(w + os.linesep)
+
+# TODO: working...
+def create_skip_grams(words_fn, sentences_fn, output_fn, min_frequency=5, window_size=2, log_per=100000):
+  # Load sentences
+  uu.print_dt('Load sentences...')
+  sentences = uu.load_sentences(sentences_fn)
+
+  # Create skip_grams
+  uu.print_dt('Create skip_grams...')
+  skip_grams = []
+  for idx, s in enumerate(sentences, 1):
+    words_in_sentences = s.strip.split(' ')
+
+
 ## Main
 # convert_scripts(directory, log_per)
 # cut_sentences('../results/token-scripts-plain.txt', 100000)
 # get_word_frequency_json(input_file, output_file, log_per)
-show_counts_log_scale(output_file)
+# show_counts_log_scale(output_file)
