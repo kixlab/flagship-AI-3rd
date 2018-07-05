@@ -1,3 +1,5 @@
+# Word2vec tester - v0.1
+
 import tensorflow as tf
 import matplotlib
 import matplotlib.pyplot as plt
