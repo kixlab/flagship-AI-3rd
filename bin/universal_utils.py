@@ -1,9 +1,11 @@
 import time
 import datetime
+import pytz
 
 def get_current_datetime():
+	local = pytz.timezone("Asia/Seoul")
 	ts = time.time()
-	return datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+	return datetime.datetime.fromtimestamp(ts, local).strftime('%Y-%m-%d %H:%M:%S')
 
 def print_dt(s):
 	print('[%s] ' % get_current_datetime() + s)
