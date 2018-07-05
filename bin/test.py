@@ -6,7 +6,14 @@ import tensorflow as tf
 
 dirname = os.path.dirname(__file__)
 
-x = {"0": "테스트", "1": "tt"}
+
+flags = tf.app.flags
+FLAGS = flags.FLAGS
+# flags.DEFINE_integer('max_steps', 2000, 'Number of steps')
+# print(FLAGS.max_steps)
+
+
+# x = {"0": "테스트", "1": "tt"}
 # for key in x:
 #   print(key , " ", x[key])
 
@@ -23,20 +30,20 @@ x = {"0": "테스트", "1": "tt"}
 
 # print(result)
 
-# # x = tf.get_variable('x', shape=[2])
+x = tf.get_variable('x', shape=[2])
 # x = tf.Variable([1,2], name="x")
 
-# saver = tf.train.Saver()
+saver = tf.train.Saver()
 
-# with tf.Session() as sess:
-#   init = tf.global_variables_initializer()
-#   sess.run(init)
+with tf.Session() as sess:
+  init = tf.global_variables_initializer()
+  sess.run(init)
 
-  
-#   # save_path = saver.save(sess, os.path.join(dirname, "tmp/test.ckpt"))
-#   # print("Model saved in path: %s" % save_path)
+  # save_path = saver.save(sess, os.path.join(dirname, "tmp/test.ckpt"))
+  # print("Model saved in path: %s" % save_path)
 
-#   saver.restore(sess, os.path.join(dirname, "tmp/test.ckpt"))
-#   print("Model restored.")
-#   # Check the values of the variables
-#   print(x.eval())
+  saver.restore(sess, os.path.join(dirname, "tmp/test.ckpt"))
+  print("Model restored.")
+  # Check the values of the variables
+  print(x.eval())
+  print(FLAGS.max_steps)
