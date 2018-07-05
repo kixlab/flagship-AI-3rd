@@ -115,6 +115,20 @@ def create_word_list(words_fn, output_fn, min_frequency = 5, log_per = 100000):
     for w in word_list:
       writefile.write(w + os.linesep)
 
+def print_rare_words(counts_fn, max_frequency = 2, print_num = 20):
+  with open(counts_fn, 'r') as readfile:
+    word_dict = json.load(readfile)
+    
+    printed_num = 0
+    for k in word_dict.keys():
+      if (int(word_dict[k]) <= max_frequency):
+        print("%s (%s times)" % (k, word_dict[k]))
+        printed_num += 1
+
+      if (printed_num >= print_num):
+        return
+
+
 # TODO: working...
 def create_skip_grams(words_fn, sentences_fn, output_fn, min_frequency=5, window_size=2, log_per=100000):
   # Load sentences
@@ -129,7 +143,4 @@ def create_skip_grams(words_fn, sentences_fn, output_fn, min_frequency=5, window
 
 
 ## Main
-# convert_scripts(directory, log_per)
-# cut_sentences('../results/token-scripts-plain.txt', 100000)
-# get_word_frequency_json(input_file, output_file, log_per)
-# show_counts_log_scale(output_file)
+print_rare_words(output_file)
