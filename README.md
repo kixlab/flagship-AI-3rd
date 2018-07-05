@@ -19,8 +19,8 @@ Classify a input sentence into one of 8 VRM categories
 
 ## Process with Options
 1. Tokenizing Data (documents -> sentences of words)
-    - **Spliting with whitespace**
-    - Removing punctuation marks
+    - Spliting with whitespace
+    - **Considering punctuation marks as words**
     - Removing most common words
     - Re-define words with each one's meaning
     - Morpheme analyzer (형태소 분석)
