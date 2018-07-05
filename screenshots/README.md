@@ -5,13 +5,14 @@
 ### Conditions
 | #. of ... | Value |
 |:---|:-------------|
+| Trainer version | v0.1 |
+| learned sentences | 100,000 |
+| window size | 1 |
 | batch size | 20 |
 | sample size (for loss) | 15 |
 | embedding size | 50 |
 | learning rate | 0.1 |
-| learned sentences | 100,000 |
 | training epoch | 60,000 |
-| Trainer version | v0.1 |
 
 ### Special Note
 
