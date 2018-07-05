@@ -6,10 +6,10 @@ import math
 import universal_utils as uu
 
 ## Varaibles
-directory = '../results/token-scripts-plain'
+directory = '../results/token-scripts-reduce3'
 log_per = 100000
-input_file = '../results/token-scripts-plain.txt'
-output_file = '../results/token-scripts-plain-words.json'
+input_file = '../results/token-scripts-reduce3.txt'
+output_file = '../results/token-scripts-reduce3-words.json'
 
 
 ## Functions
@@ -81,7 +81,7 @@ def convert_sci_news():
     for sentence in document:
       f.write(sentence + os.linesep)
 
-def show_counts_log_scale(filename, scale = 2):
+def show_counts_log_scale(filename, scale = 2, min_frequency = 5):
   print('[%s] Start process...' % uu.get_current_datetime())
   with open(filename, 'r') as readfile:
     counts = json.load(readfile)
@@ -94,8 +94,13 @@ def show_counts_log_scale(filename, scale = 2):
         result[log_value] = 1
   
   print('[%s] Process completed!' % uu.get_current_datetime())
+  able_words_num = 0
   for k in sorted(result.keys()):
     print('Scale %2d: %7d' % (k, result[k]))
+    if (k >= math.log(min_frequency, scale)):
+      able_words_num += result[k]
+
+  print('Total %d of %d words can be used for word2vec! (%f%%)' % (able_words_num, len(counts), (able_words_num / len(counts) * 100)))
 
 
 def create_word_list(words_fn, output_fn, min_frequency = 5, log_per = 100000):
@@ -143,4 +148,4 @@ def create_skip_grams(words_fn, sentences_fn, output_fn, min_frequency=5, window
 
 
 ## Main
-print_rare_words(output_file)
+print_rare_words(output_file, 1, 50)

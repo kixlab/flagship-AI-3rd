@@ -9,8 +9,8 @@ import shutil
 # All of directories must be in advance
 read_zip_file = '../scripts/scripts.zip'
 write_zip_file = '../results/result.zip'
-write_directory = '../results/scripts'
-tmp_directory = '../results/tmp'  # For temp files to be zipped
+write_directory = '../results/token-scripts-reduce3'
+tmp_directory = '../results/token-scripts-reduce3/tmp'  # For temp files to be zipped
 
 start_file_num = 1  # index starts with 1
 save_num = 500
@@ -22,12 +22,23 @@ in_brackets_re = re.compile('\(.*?\)')  # Limitation on nested brackets like '(a
 
 
 ## Functions
+def reduce_word(w, num=3):
+  if (len(w) > num):
+    return w[:num] + '-'
+  else:
+    return w
+
+
 def tokenize_sentence(s):
   # Remove words in brackets
   result = in_brackets_re.sub(' ', s)
 
   # Divide sentence into words with regex
   result = token_re.findall(result)
+
+  # reduce to 3-length words
+  result = list(map(reduce_word, result))
+
   return result
 
 
