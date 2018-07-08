@@ -7,10 +7,12 @@ import universal_utils as uu
 
 ## Varaibles
 directory = '../results/token-scripts-reduce3'
-log_per = 100000
-input_file = '../results/token-scripts-reduce3.txt'
-output_file = '../results/token-scripts-reduce3-words.json'
-
+log_per = 10000
+# input_file = '../results/token-scripts-reduce3-words.json'
+# output_file = '../results/token-scripts-reduce3-word-list.txt'
+words_file = '../results/token-scripts-reduce3-word-list.txt'
+sentences_file = '../results/token-scripts-reduce3.txt'
+output_file = '../results/token-scripts-reduce3-skipgram.txt'
 
 ## Functions
 def convert_scripts(direc, log_per):
@@ -134,18 +136,54 @@ def print_rare_words(counts_fn, max_frequency = 2, print_num = 20):
         return
 
 
-# TODO: working...
-def create_skip_grams(words_fn, sentences_fn, output_fn, min_frequency=5, window_size=2, log_per=100000):
+def create_skip_grams(word_list_fn, sentences_fn, output_fn, window_size=2, log_per=100000):
   # Load sentences
   uu.print_dt('Load sentences...')
-  sentences = uu.load_sentences(sentences_fn)
+  sentences = uu.load_text_file(sentences_fn)
+
+  # Load word list
+  uu.print_dt('Load word list...')
+  word_list = uu.load_text_file(word_list_fn)
+  word_dict = {w: i for i, w in enumerate(word_list)}
 
   # Create skip_grams
   uu.print_dt('Create skip_grams...')
   skip_grams = []
-  for idx, s in enumerate(sentences, 1):
-    words_in_sentences = s.strip.split(' ')
+  all_skip_grams = 0
+  for idx, s in enumerate(sentences[:100000], 1):
+    words_in_sentences = s.strip().split(' ')
+    for w_idx, w in enumerate(words_in_sentences, 0):
+      target = w
+      # Only add number of sets to all_skip_grams
+      if (target not in word_list):
+        all_skip_grams += min([window_size, w_idx]) + \
+            min([window_size, len(words_in_sentences) - w_idx - 1])
+        continue
 
+      # Create word set
+      for c_idx in range(w_idx - window_size, w_idx + window_size + 1):
+        if (c_idx == w_idx):
+          continue
+
+        if (c_idx < 0 or c_idx >= len(words_in_sentences)):
+          continue
+        
+        all_skip_grams += 1
+        content = words_in_sentences[c_idx]
+        if content in word_list:
+          skip_grams.append([word_dict[target], word_dict[content]])
+    if (idx % log_per == 0):
+      print_set = (idx, len(skip_grams), all_skip_grams, len(skip_grams) / all_skip_grams * 100)
+      uu.print_dt("%7d sentences were parsed: %8d of %8d skip-grams can be used. (%2f%%)" % print_set)
+
+  print_set = (len(skip_grams), all_skip_grams, len(skip_grams) / all_skip_grams * 100)
+  uu.print_dt("All sentences were parsed: %8d of %8d skip-grams can be used. (%2f%%)" % print_set)
+
+  uu.print_dt("Save skip-grams...")
+  with open(output_fn, 'w') as writefile:
+    for s_g in skip_grams:
+      writefile.write("%d %d" % (s_g[0], s_g[1]) + os.linesep)
 
 ## Main
-print_rare_words(output_file, 1, 50)
+# create_word_list(input_file, output_file)
+create_skip_grams(words_file, sentences_file, output_file, log_per=log_per)

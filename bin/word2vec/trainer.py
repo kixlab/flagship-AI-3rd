@@ -19,28 +19,31 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 IS_COLAB = False
 
 FILE_NAME = '../results/token-scripts-plain-100000.txt'
-SAVE_MODEL_NAME = 'model/scripts-test'
-WORD_COUNT = 1
-LOSS_LOG_PER = 20
-SAVING_MODEL_PER = 20000
-plot_only = 100		# number of plots in result graph
+
+word_list_file = '../../results/token-scripts-reduce3-word-list.txt'
+skip_grams_file = '../../results/token-scripts-reduce3-skipgram.txt'
+
+SAVE_MODEL_NAME = 'model/scripts-reduce3-100000sent'
+WORD_COUNT = 2
+LOSS_LOG_PER = 100
+SAVING_MODEL_PER = 500
 
 training_sentences = 100000
 start_sentence = 0
 
 # 학습을 반복할 횟수
-training_epoch = 100
+training_epoch = 3000
 # 학습률
-learning_rate = 0.1
+learning_rate = 0.025
 # 한 번에 학습할 데이터의 크기
-batch_size = 20
+batch_size = 2000
 # 단어 벡터를 구성할 임베딩 차원의 크기
 # 이 예제에서는 x, y 그래프로 표현하기 쉽게 2 개의 값만 출력하도록 합니다.
 # normally 50 or 200 ~ 300 (may it depends on the vocab size)
 embedding_size = 50
 # word2vec 모델을 학습시키기 위한 nce_loss 함수에서 사용하기 위한 샘플링 크기
 # batch_size 보다 작아야 합니다.
-num_sampled = 15
+num_sampled = 1500
 
 ## Functions
 def get_current_datetime():
@@ -80,6 +83,21 @@ def import_file(file_name):
 
     return word_list, word_dict, word_dict_reverse, skip_grams
 
+def load_word_list(filename):
+    with open(filename, 'rb') as readfile:
+	    words = [l.decode('utf8', 'ignore').strip() for l in readfile.readlines()]
+    return words
+
+def load_skip_grams(filename):
+    with open(filename, 'r') as readfile:
+        sentences = readfile.read().strip().split(os.linesep)
+
+    skip_grams = []
+    for s in sentences:
+        skip_grams.append(s.strip().split(' '))
+    
+    return skip_grams
+
 # skip-gram 데이터에서 무작위로 데이터를 뽑아 입력값과 출력값의 배치 데이터를 생성하는 함수
 def random_batch(data, size):
     random_inputs = []
@@ -100,23 +118,9 @@ if (not IS_COLAB):
 	dirname = os.path.dirname(__file__)
 	FILE_NAME = os.path.join(os.path.join(dirname, os.pardir), 'dataset/' + FILE_NAME)
 
-    # 이 파일과 같은 경로에 한글 폰트 파일을 넣어주세요
-	font_filename = os.path.join(dirname, 'SpoqaHanSansRegular.ttf') # 폰트 이름 바꾸기
-
-    # matplot 에서 한글을 표시하기 위한 설정
-	font_name = matplotlib.font_manager.FontProperties(
-        fname=font_filename
-                ).get_name()
-	font_filename = os.path.join(dirname, 'SpoqaHanSansRegular.ttf') # 폰트 이름 바꾸기
-
-    # matplot 에서 한글을 표시하기 위한 설정
-	font_name = matplotlib.font_manager.FontProperties(
-        fname=font_filename
-                ).get_name()
-	matplotlib.rc('font', family=font_name)
-
-word_list, word_dict, word_dict_reverse, skip_grams = import_file(FILE_NAME)
-
+# word_list, word_dict, word_dict_reverse, skip_grams = import_file(FILE_NAME)
+word_list = load_word_list(word_list_file)
+skip_grams = load_skip_grams(skip_grams_file)
 
 # 윈도우 사이즈를 1 로 하는 skip-gram 모델을 만듭니다.
 # 예) 나 게임 만화 애니 좋다
@@ -147,12 +151,13 @@ voc_size = len(word_list)
 #########
 # 신경망 모델 구성
 ######
+# Save variables
+# tf.Variable(word_list, name="word_list")
+
+
 inputs = tf.placeholder(tf.int32, shape=[batch_size])
 # tf.nn.nce_loss 를 사용하려면 출력값을 이렇게 [batch_size, 1] 구성해야합니다.
 labels = tf.placeholder(tf.int32, shape=[batch_size, 1])
-
-# Save word_dict as array form
-tf.Variable([word_dict_reverse[i] for i in range(len(word_dict_reverse))], name="word_dict_array")
 
 # word2vec 모델의 결과 값인 임베딩 벡터를 저장할 변수입니다.
 # 총 단어 갯수와 임베딩 갯수를 크기로 하는 두 개의 차원을 갖습니다.
@@ -171,21 +176,20 @@ nce_weights = tf.Variable(tf.random_uniform(
     [voc_size, embedding_size], -1.0, 1.0), name="nce_weights")
 nce_biases = tf.Variable(tf.zeros([voc_size]), name="nce_biases")
 
-# nce_loss 함수를 직접 구현하려면 매우 복잡하지만,
-# 함수를 텐서플로우가 제공하므로 그냥 tf.nn.nce_loss 함수를 사용하기만 하면 됩니다.
-loss = tf.reduce_mean(
-    tf.nn.nce_loss(nce_weights, nce_biases, labels, selected_embed, num_sampled, voc_size))
+with tf.device("/gpu:0"):
+    # nce_loss 함수를 직접 구현하려면 매우 복잡하지만,
+    # 함수를 텐서플로우가 제공하므로 그냥 tf.nn.nce_loss 함수를 사용하기만 하면 됩니다.
+    loss = tf.reduce_mean(
+        tf.nn.nce_loss(nce_weights, nce_biases, labels, selected_embed, num_sampled, voc_size))
 
-train_op = tf.train.AdamOptimizer(learning_rate).minimize(loss)
-
-tf.Variable(word_list, name='word_list')
+    train_op = tf.train.AdamOptimizer(learning_rate).minimize(loss)
 
 
 
 #########
 # 신경망 모델 학습
 ######
-with tf.Session() as sess:
+with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
     init = tf.global_variables_initializer()
     sess.run(init)
 
@@ -218,31 +222,3 @@ with tf.Session() as sess:
     # 임베딩 벡터의 결과 값을 계산하여 저장합니다.
     # with 구문 안에서는 sess.run 대신 간단히 eval() 함수를 사용할 수 있습니다.
     trained_embeddings = embeddings.eval()
-
-
-
-# def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
-#   assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
-#   plt.figure(figsize=(18, 18))  # in inches
-#   for i, label in enumerate(labels):
-#     x, y = low_dim_embs[i, :]
-#     plt.scatter(x, y)
-#     plt.annotate(label,
-#                  xy=(x, y),
-#                  xytext=(5, 2),
-#                  textcoords='offset points',
-#                  ha='right',
-#                  va='bottom')
-
-#   plt.savefig(filename)
-
-
-# try:
-#   tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=1000)
-#   plot_only = len(word_dict) if (len(word_dict) < plot_only) else plot_only
-#   low_dim_embs = tsne.fit_transform(trained_embeddings[:plot_only, :])
-#   labels = [word_dict_reverse[i] for i in range(plot_only)]
-#   plot_with_labels(low_dim_embs, labels)
-
-# except ImportError:
-#   print("Please install sklearn and matplotlib to visualize embeddings.")
