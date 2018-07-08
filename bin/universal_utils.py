@@ -11,8 +11,8 @@ def print_dt(s):
 	print('[%s] ' % get_current_datetime() + s)
 
 # Read text file and return array of sentences
-def load_sentences(filename):
+def load_text_file(filename):
 	with open(filename, 'rb') as readfile:
-		sentences = [l.decode('utf8', 'ignore')
+		lines = [l.decode('utf8', 'ignore').strip()
 								 for l in readfile.readlines()]
-	return sentences
+	return lines
