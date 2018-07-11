@@ -107,8 +107,8 @@ with tf.Session() as sess:
 
   imported_meta.restore(sess, tf.train.latest_checkpoint('model/'))
   word_dict_array = list(
-      map(lambda x: x.decode('utf-8'), sess.run('word_dict_array:0')))
+      map(lambda x: x.decode('utf-8'), sess.run('word_list:0')))
   embeddings = sess.run('embeddings:0')
 
-# start_getting_nearby_elements(5)
-draw_plot(plot_num)
+start_getting_nearby_elements(5)
+# draw_plot(plot_num)

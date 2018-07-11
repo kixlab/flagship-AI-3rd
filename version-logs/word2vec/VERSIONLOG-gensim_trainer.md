@@ -2,6 +2,11 @@
 
 Version log for gensim word2vec trainer
 
+## v0.1.1 - 170711
+
+### Added
+- Log for progress and loss
+- Save model for interval
 
 ## v0.1 - 170711
 
