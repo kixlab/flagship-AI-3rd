@@ -52,3 +52,4 @@ Set the minimum frequency of words which will be trained. Because for good train
 ### For Implementing
 - [TensorFlow: Save and Restore Models](http://stackabuse.com/tensorflow-save-and-restore-models/)
 - [Word2Vec 모델 학습하기](https://deeplearning4j.org/kr/word2vec#%EB%AA%A8%EB%8D%B8-%ED%95%99%EC%8A%B5%ED%95%98%EA%B8%B0)
+- [Gensim word2vec on CPU faster than Word2veckeras on GPU (Incubator Student Blog)](https://rare-technologies.com/gensim-word2vec-on-cpu-faster-than-word2veckeras-on-gpu-incubator-student-blog/)
