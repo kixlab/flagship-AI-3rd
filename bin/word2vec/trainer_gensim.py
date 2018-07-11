@@ -1,3 +1,5 @@
+# Gensim Trainer v0.1
+
 from gensim.models import Word2Vec
 
 def load_sentence(filename):
