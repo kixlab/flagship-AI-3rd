@@ -1,4 +1,4 @@
-# Seongho's word2vec traniner v0.1
+# Seongho's word2vec traniner v0.1.1
 # Code From globin's TensorFlow Tutorials
 # https://github.com/golbin/TensorFlow-Tutorials/blob/master/04%20-%20Neural%20Network%20Basic/03%20-%20Word2Vec.py
 
@@ -16,23 +16,23 @@ from sklearn.manifold import TSNE
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 ## VARIABLES
-IS_COLAB = False
+IS_COLAB = True
 
-FILE_NAME = '../results/token-scripts-plain-100000.txt'
+FILE_NAME = 'token-scripts-plain-100000.txt'
 
-word_list_file = '../../results/token-scripts-reduce3-word-list.txt'
-skip_grams_file = '../../results/token-scripts-reduce3-skipgram.txt'
+word_list_file = 'token-scripts-reduce3-word-list.txt'
+skip_grams_file = 'token-scripts-reduce3-skipgram.txt'
 
-SAVE_MODEL_NAME = 'model/scripts-reduce3-100000sent'
+SAVE_MODEL_NAME = 'model/reduce3/180711-100000sent'
 WORD_COUNT = 2
-LOSS_LOG_PER = 100
-SAVING_MODEL_PER = 500
+LOSS_LOG_PER = 200
+SAVING_MODEL_PER = 1000
 
 training_sentences = 100000
 start_sentence = 0
 
 # 학습을 반복할 횟수
-training_epoch = 3000
+training_epoch = 10000
 # 학습률
 learning_rate = 0.025
 # 한 번에 학습할 데이터의 크기
@@ -40,7 +40,7 @@ batch_size = 2000
 # 단어 벡터를 구성할 임베딩 차원의 크기
 # 이 예제에서는 x, y 그래프로 표현하기 쉽게 2 개의 값만 출력하도록 합니다.
 # normally 50 or 200 ~ 300 (may it depends on the vocab size)
-embedding_size = 50
+embedding_size = 100
 # word2vec 모델을 학습시키기 위한 nce_loss 함수에서 사용하기 위한 샘플링 크기
 # batch_size 보다 작아야 합니다.
 num_sampled = 1500
@@ -152,7 +152,7 @@ voc_size = len(word_list)
 # 신경망 모델 구성
 ######
 # Save variables
-# tf.Variable(word_list, name="word_list")
+tf.Variable(word_list, name="word_list")
 
 
 inputs = tf.placeholder(tf.int32, shape=[batch_size])
@@ -176,13 +176,12 @@ nce_weights = tf.Variable(tf.random_uniform(
     [voc_size, embedding_size], -1.0, 1.0), name="nce_weights")
 nce_biases = tf.Variable(tf.zeros([voc_size]), name="nce_biases")
 
-with tf.device("/gpu:0"):
-    # nce_loss 함수를 직접 구현하려면 매우 복잡하지만,
-    # 함수를 텐서플로우가 제공하므로 그냥 tf.nn.nce_loss 함수를 사용하기만 하면 됩니다.
-    loss = tf.reduce_mean(
-        tf.nn.nce_loss(nce_weights, nce_biases, labels, selected_embed, num_sampled, voc_size))
+# nce_loss 함수를 직접 구현하려면 매우 복잡하지만,
+# 함수를 텐서플로우가 제공하므로 그냥 tf.nn.nce_loss 함수를 사용하기만 하면 됩니다.
+loss = tf.reduce_mean(
+    tf.nn.nce_loss(nce_weights, nce_biases, labels, selected_embed, num_sampled, voc_size))
 
-    train_op = tf.train.AdamOptimizer(learning_rate).minimize(loss)
+train_op = tf.train.AdamOptimizer(learning_rate).minimize(loss)
 
 
 

@@ -3,10 +3,9 @@
 Version log for word2vec trainer
 
 
-## v0.1.1 - 
+## v0.1.1 - 170711
 
 ### Added
-- Save more variables for training word2vec like learning_rate, embedding_size, ...
 - Utility functions are moved to *universal_utils.py*
 
 ### Removed
