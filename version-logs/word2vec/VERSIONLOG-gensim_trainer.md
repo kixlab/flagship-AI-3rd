@@ -2,6 +2,12 @@
 
 Version log for gensim word2vec trainer
 
+## v0.1.2 - 170712
+
+### Added
+- Log can be removed (Set log_per to 0)
+- Iteration Progress Bar (from tqdm)
+
 ## v0.1.1 - 170711
 
 ### Added

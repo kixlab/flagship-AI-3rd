@@ -14,6 +14,11 @@ Used for dimensionality reduction & visualization; Normally used for word2vec.
 
 SNE + Solving Crowding Problem => t-SNE
 
+### WS353 (WordSimilarity-353)
+- Two sets of English word pairs along with human-assigned similarity judgements.
+- Korean sets also exist and there are various versions of them.
+  - [Word Vector Representation for Korean: Evaluation Set](https://github.com/SungjoonPark/KoreanWordVectors)
+
 ## Optimization
 
 ### Variables
@@ -53,3 +58,4 @@ Set the minimum frequency of words which will be trained. Because for good train
 - [TensorFlow: Save and Restore Models](http://stackabuse.com/tensorflow-save-and-restore-models/)
 - [Word2Vec 모델 학습하기](https://deeplearning4j.org/kr/word2vec#%EB%AA%A8%EB%8D%B8-%ED%95%99%EC%8A%B5%ED%95%98%EA%B8%B0)
 - [Gensim word2vec on CPU faster than Word2veckeras on GPU (Incubator Student Blog)](https://rare-technologies.com/gensim-word2vec-on-cpu-faster-than-word2veckeras-on-gpu-incubator-student-blog/)
+- [The WordSimilarity-353 Test Collection](http://www.cs.technion.ac.il/~gabr/resources/data/wordsim353/wordsim353.html)

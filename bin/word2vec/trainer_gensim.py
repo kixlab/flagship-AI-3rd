@@ -1,6 +1,8 @@
-# Gensim Trainer v0.1.1
+# Gensim Trainer v0.1.2
 
 IS_COLAB = False
+
+from tqdm import trange
 
 if IS_COLAB:
 	import universal_utils as uu
@@ -9,12 +11,12 @@ else:
 
 ## Variables
 input_file = '../../results/token-scripts-reduce3.txt'
-output_file = '../../results/gensim-test'
+output_file = '../../results/180712-gensim-300000sent'
 
-training_epoch = 1000
-max_sentences = 100000
-log_per = 50
-save_per = 200
+training_epoch = 30000
+max_sentences = 300000
+log_per = 0
+save_per = 2000
 
 from gensim.models import Word2Vec
 
@@ -35,12 +37,12 @@ uu.print_dt("Build Vocab...")
 model.build_vocab(tokenized_contents)
 
 loss_sum = 0
-for epoch in range(1, training_epoch + 1):
+for epoch in trange(1, training_epoch + 1):
 	model.train(
 		tokenized_contents, total_examples=model.corpus_count, epochs=model.epochs, compute_loss=True)
 	loss_sum += model.get_latest_training_loss()
 
-	if epoch % log_per == 0:
+	if log_per > 0 and epoch % log_per == 0:
 		uu.print_dt('Loss from %6d to %6d : %f' %(epoch - log_per, epoch, loss_sum / log_per))
 		loss_sum = 0
 	
