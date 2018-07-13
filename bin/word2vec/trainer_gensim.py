@@ -11,12 +11,12 @@ else:
 
 ## Variables
 input_file = '../../results/token-scripts-reduce3.txt'
-output_file = '../../results/180712-gensim-300000sent'
+output_file = '../../results/180713-gensim-500000sent'
 
-training_epoch = 30000
-max_sentences = 300000
-log_per = 0
-save_per = 2000
+training_epoch = 50000
+max_sentences = 500000
+log_per = 2000
+save_per = 5000
 
 from gensim.models import Word2Vec
 
