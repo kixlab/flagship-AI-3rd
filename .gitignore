@@ -112,6 +112,7 @@ venv.bak/
 scripts/
 refs/
 results/
+logs/
 
 # Ignore test files
 test.py
