@@ -32,7 +32,8 @@ def get_custom_logger(name, log_path):
 	logger.setLevel(logging.DEBUG)
 
 	# fileHandler와 StreamHandler를 생성
-	fileHandler = logging.FileHandler(log_path)
+	final_log_path = log_path + '.log' if not log_path.endswith('.log') else log_path
+	fileHandler = logging.FileHandler(final_log_path)
 	streamHandler = logging.StreamHandler()
 
 	fileHandler.setLevel(logging.DEBUG)
