@@ -4,6 +4,7 @@ import os
 import json
 import math
 import universal_utils as uu
+from tqdm import trange, tqdm
 
 ## Varaibles
 directory = '../results/token-scripts-reduce3'
@@ -213,7 +214,57 @@ def get_info_of_sentences(sentences_fn, sentences_num):
     single_word_sentence, single_word_sentence / sentences_num * 100))
   logger.info("=" * 50)
 
+def make_omitted_sentences(sentences_fn, output_fn, sentences_num, min_count):
+  if sentences_num < 1:
+    print("ERROR: sentences_num MUST be more than 1.")
+    return
+
+  print("Start to read file...")
+  sentences = uu.load_text_file(sentences_fn)[:sentences_num]
+
+  print("Get word_counts from sentences...")
+  word_counts = {}
+  for s in tqdm(sentences):
+    words = s.strip().split(' ')
+    for w in words:
+      if w in word_counts.keys():
+        word_counts[w] += 1
+      else:
+        word_counts[w] = 1
+  
+  print("Get frequent words list...")
+  frequent_words = []
+  for k in tqdm(word_counts.keys()):
+    if word_counts[k] >= min_count:
+      frequent_words.append(k)
+  logger = uu.get_custom_logger('info_omitted', os.path.join(uu.get_base_path(), 'logs/omit.log'))
+  logger.info("Omitting ~%d Sentences with min_count %d" % (sentences_num, min_count))
+  frequent_len = len(frequent_words)
+  total_len = len(word_counts)
+  logger.info("Survived Vocabs: %d of Total %d (%.2f%%)" % (frequent_len, total_len, frequent_len / total_len * 100))
+
+  print("Write results...")
+  total_words_len = 0
+  omitted_words_len = 0
+  with open(output_fn, 'w') as writefile:
+    for s in tqdm(sentences):
+      words = s.strip().split(' ')
+      omitted_words = []
+      for idx, w in enumerate(words):
+        if w not in frequent_words:
+          words[idx] = '()'
+          omitted_words.append(w)
+      omitted_words_len += len(omitted_words)
+      total_words_len += len(words) - omitted_words_len
+      writefile.write("%s [%s]" % (' '.join(words), ', '.join(omitted_words))
+                      + os.linesep)
+  frequent_words_len = total_words_len - omitted_words_len
+  logger.info("Survived Words: %d of Total %d (%.2f%%)"
+                % (frequent_words_len, total_words_len, frequent_words_len / total_words_len * 100))
+  logger.info("-" * 50)
+
 ## Main
 # create_word_list(input_file, output_file)
 # create_skip_grams(words_file, sentences_file, output_file, log_per=log_per)
 # get_info_of_sentences(sentences_file, 500000)
+make_omitted_sentences(sentences_file, '../results/reduce3-omitted-500000-5.txt', 500000, 5)
