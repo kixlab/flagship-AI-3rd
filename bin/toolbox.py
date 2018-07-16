@@ -184,6 +184,36 @@ def create_skip_grams(word_list_fn, sentences_fn, output_fn, window_size=2, log_
     for s_g in skip_grams:
       writefile.write("%d %d" % (s_g[0], s_g[1]) + os.linesep)
 
+def get_info_of_sentences(sentences_fn, sentences_num):
+  if sentences_num < 1:
+    print("ERROR: sentences_num MUST be more than 1.")
+    return
+
+  print("Start to read file...")
+  sentences = uu.load_text_file(sentences_fn)[:sentences_num]
+  single_word_sentence = 0
+  total_words = []
+
+  print("Get words from sentences...")
+  for s in sentences:
+    words = s.strip().split(' ')
+    if len(words) == 1:
+      single_word_sentence += 1
+    total_words.extend(words)
+  
+  total_words_num = len(total_words)
+  unique_words_num = len(list(set(total_words)))
+
+  logger = uu.get_custom_logger('sentences_info', os.path.join(uu.get_base_path(), 'logs/sentences_info.log'))
+  logger.info(f'{sentences_num} sentences INFO:')
+  logger.info('Total words: %d | Unique words: %d (%.2f%% of total)' % (
+    total_words_num, unique_words_num, unique_words_num / total_words_num * 100))
+  logger.info('Words per sentences: %.2f' % (total_words_num / sentences_num))
+  logger.info("Single-word-sentences: %d (%.2f%% of total)" % (
+    single_word_sentence, single_word_sentence / sentences_num * 100))
+  logger.info("=" * 50)
+
 ## Main
 # create_word_list(input_file, output_file)
-create_skip_grams(words_file, sentences_file, output_file, log_per=log_per)
+# create_skip_grams(words_file, sentences_file, output_file, log_per=log_per)
+# get_info_of_sentences(sentences_file, 500000)

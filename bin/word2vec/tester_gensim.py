@@ -7,7 +7,7 @@ import _uu as uu
 import os
 
 ## Variables
-file_name = '180712-gensim-300000sent_final'
+file_name = '180713-gensim-500000sent_final'
 file_path = os.path.join(uu.get_base_path(), 'results', file_name)
 log_path = os.path.join(uu.get_base_path(), 'logs', file_name)
 
