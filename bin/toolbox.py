@@ -3,17 +3,19 @@
 import os
 import json
 import math
+import time
 import universal_utils as uu
 from tqdm import trange, tqdm
 
 ## Varaibles
-directory = '../results/token-scripts-reduce3'
-log_per = 10000
+directory = '../results/token-scripts-plain'
+# log_per = 10000
 # input_file = '../results/token-scripts-reduce3-words.json'
-# output_file = '../results/token-scripts-reduce3-word-list.txt'
-words_file = '../results/token-scripts-reduce3-word-list.txt'
-sentences_file = '../results/token-scripts-reduce3.txt'
-output_file = '../results/token-scripts-reduce3-skipgram.txt'
+output_file = '../results/script_plain.txt'
+# words_file = '../results/token-scripts-reduce3-word-list.txt'
+# sentences_file = '../results/token-scripts-reduce3.txt'
+# output_file = '../results/token-scripts-reduce3-skipgram.txt'
+log_file = '../logs/convert_log.log'
 
 ## Functions
 def convert_scripts(direc, log_per):
@@ -28,6 +30,23 @@ def convert_scripts(direc, log_per):
                writefile.write(' '.join(l['tokens']) + os.linesep)
       if (idx % log_per == 0):
         print("Converting step %6d" % idx)
+
+def convert_script_json_txt(direc, output_fn, log_fn):
+  logger = uu.get_custom_logger('convert_json_txt', log_fn)
+  start_time = time.time()
+  with open(output_fn, 'w') as writefile:
+    for f in tqdm(os.listdir(direc)):
+      if (f.endswith('.json')):
+        with open(os.path.join(direc, f), 'r') as readfile:
+          dialogs = json.load(readfile)
+          for d in dialogs:
+            for l in d['lines']:
+              content = f"[[{l['speaker']}]] {l['message']}"
+              writefile.write(content + os.linesep)
+          writefile.write(os.linesep)
+
+  end_time = time.time() - start_time
+  logger.info("Finish to convert script json to txt file: %.2f sec" % end_time)
 
 def cut_sentences(filename, line_num):
   with open(filename, 'r') as readfile:
@@ -267,4 +286,5 @@ def make_omitted_sentences(sentences_fn, output_fn, sentences_num, min_count):
 # create_word_list(input_file, output_file)
 # create_skip_grams(words_file, sentences_file, output_file, log_per=log_per)
 # get_info_of_sentences(sentences_file, 500000)
-make_omitted_sentences(sentences_file, '../results/reduce3-omitted-500000-5.txt', 500000, 5)
+# make_omitted_sentences(sentences_file, '../results/reduce3-omitted-500000-5.txt', 500000, 5)
+convert_script_json_txt(directory, output_file, log_file)
