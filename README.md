@@ -11,29 +11,28 @@ Classify a input sentence into one of 8 VRM categories
 
 > William B. Stiles, 1992, Describing Talk: A Taxonomy of Verbal Response Modes
 
-## Weeks
+## How to start
 
-1. Research for Hangul Embedding and building infrastructure for machine learning
-    - Order: Embedding -> finding the best infrastructure (Tensorflow, pytorch, and etc)
+Before starting project, you must install following packages.
+- [pyenv](https://github.com/pyenv/pyenv#installation)
+- [autoenv](https://github.com/kennethreitz/autoenv#install)
 
+```
+# Clone this repo
+git clone https://github.com/kixlab/flagship-AI-3rd.git
 
-## Process with Options
-1. Tokenizing Data (documents -> sentences of words)
-    - Spliting with whitespace
-    - **Considering punctuation marks as words**
-    - Removing most common words
-    - Re-define words with each one's meaning
-    - Morpheme analyzer (형태소 분석)
-2. Word Embedding
-    - **Word2Vec**
-        - CBOW
-        - **Skip-gram**
-            - Embedding Size
-            - Word Count Size
-                - Uniform
-                - Weighed
-            - Order of training
-                - **Random (epoch & batch size)**
-    - fastText
-    - LSA
-    - GloVe
+# Move to project directory
+# Then, virtual python environment will be activated automatically.
+cd flagship-AI-3rd
+
+# Install python packages in requirements.txt
+pip install -r requirements.txt
+```
+
+## Docs
+
+- [Word Embedding](https://github.com/kixlab/flagship-AI-3rd/blob/master/docs/Embedding.md)
+- [Word2Vec](https://github.com/kixlab/flagship-AI-3rd/blob/master/docs/word2vec.md)
+- [Infrastructure for ML](https://github.com/kixlab/flagship-AI-3rd/blob/master/docs/Infra.md)
+- [Options for Word2Vec Implementation](https://github.com/kixlab/flagship-AI-3rd/blob/master/docs/Options.md)
+- [Artificial Neural Network](https://github.com/kixlab/flagship-AI-3rd/blob/master/docs/ANN.md)

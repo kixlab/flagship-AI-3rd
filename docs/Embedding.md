@@ -104,8 +104,7 @@ More accurate on noisy samples, but fastText takes more long time to training
 - [GloVe: Global Vectors for Word Representation](https://nlp.stanford.edu/projects/glove/)
 - [awesome-embedding-models](https://github.com/Hironsan/awesome-embedding-models)
 - [Awesome Korean NLP](https://github.com/datanada/Awesome-Korean-NLP)
-- [
-Word Embedding의 직관적인 이해 : Count Vector에서 Word2Vec에 이르기까지](https://www.nextobe.com/single-post/2017/06/20/Word-Embedding%EC%9D%98-%EC%A7%81%
+- [Word Embedding의 직관적인 이해 : Count Vector에서 Word2Vec에 이르기까지](https://www.nextobe.com/single-post/2017/06/20/Word-Embedding%EC%9D%98-%EC%A7%81%)
 - [SVD와 PCA, 그리고 잠재의미분석(LSA)](https://ratsgo.github.io/from%20frequency%20to%20semantics/2017/04/06/pcasvdlsa/)
 
 ### Paper
@@ -114,5 +113,5 @@ From Word to Sense Embeddings: A Survey on Vector Representations of Meaning](ht
 - [Altszyler et al. (2017), Comparative study of LSA vs Word2vec embeddings
 in small corpora: a case study in dreams database](https://arxiv.org/pdf/1610.01520.pdf)
 - [Landauer, T. K., Foltz, P. W., & Laham, D. (1998).
- Introduction to Latent Semantic Analysis.]
+ Introduction to Latent Semantic Analysis.](http://lsa.colorado.edu/papers/dp1.LSAintro.pdf)
 - [최상혁 (2017), 음절 기반 한국어 단어 임베팅 모델 및 학습 기법](http://s-space.snu.ac.kr/bitstream/10371/122708/1/000000142646.pdf)
