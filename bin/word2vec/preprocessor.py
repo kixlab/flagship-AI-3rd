@@ -12,11 +12,12 @@ import matplotlib.pylab as plt
 BASE_PATH = uu.get_base_path()
 
 ## Variables
-INPUT_FN = os.path.join(BASE_PATH, 'results/test.txt')
-PLOT_FN = os.path.join(BASE_PATH, 'screenshots/words-test.png')
-OUTPUT_FN = os.path.join(BASE_PATH, 'results/test_result.txt')
+INPUT_FN = os.path.join(BASE_PATH, 'results/script_plain.txt')
+PLOT_FN = os.path.join(BASE_PATH, 'screenshots/180730-500000-plain.png')
+# OUTPUT_FN = os.path.join(BASE_PATH, 'results/180730-padded-500000-plain.txt')
 LOG_FN = os.path.join(BASE_PATH, 'logs/preprocessor.log')
-MAX_SENTENCE_LENGTH = 0  # If 0, the maximum is max(len(sentences))
+SENTENCES_LENGTH = 500000
+MAX_WORDS_LENGTH = 0  # If 0, the maximum is max(len(sentences))
 
 ## Fucntions
 def reduce_word(w, num=3):
@@ -52,7 +53,7 @@ def tokenize_sentence(s):
 def pad_0_and_save(ss):
   logger.info('Writing results...')
 
-  max_length = MAX_SENTENCE_LENGTH if MAX_SENTENCE_LENGTH > 0 else max(count.keys())
+  max_length = MAX_WORDS_LENGTH if MAX_WORDS_LENGTH > 0 else max(count.keys())
   logger.info(f"Max padding: {max_length}")
 
   with open(OUTPUT_FN, 'w') as writefile:
@@ -64,12 +65,37 @@ def pad_0_and_save(ss):
         padded_s = ['0'] * (max_length - length) + s
         writefile.write(' '.join(padded_s) + os.linesep)
 
+def get_three_points(arr):
+  total_arr = sum(arr)
+  sum_arr = 0
+  i_25 = i_50 = i_75 = None
+  for idx, v in enumerate(arr):
+    sum_arr += v
+    if i_25 == None and sum_arr >= total_arr * 0.25:
+      i_25 = idx
+    if i_50 == None and sum_arr >= total_arr * 0.5:
+      i_50 = idx
+    if i_75 == None and sum_arr >= total_arr * 0.75:
+      i_75 = idx
+  return i_25, i_50, i_75
+
+def get_proportion_indexes(arr, percents):
+  total_arr = sum(arr)
+  sum_arr = 0
+  results = [None for i in range(len(percents))]
+  for idx, v in enumerate(arr):
+    sum_arr += v
+    for i_idx, p in enumerate(percents):
+      if results[i_idx] == None and sum_arr >= total_arr * p:
+        results[i_idx] = idx
+  return results
+
 ## Main
 logger = uu.get_custom_logger('preprocessor', LOG_FN)
 
 # Load sentences
 logger.info('Load files...')
-sentences = uu.load_text_file(INPUT_FN, ignore_first=True)
+sentences = uu.load_text_file(INPUT_FN, ignore_first=True, max_num=SENTENCES_LENGTH)
 logger.info(f'Total {len(sentences)} sentences were parsed.')
 
 # Split combined sentences
@@ -96,16 +122,31 @@ for s in tqdm(tk_sentences):
 logger.info('Drawing plot...')
 count_list = sorted(count.items())
 x, y = zip(*count_list)
+# i_25, i_50, i_75 = get_three_points(y)
+[i_25, i_50, i_75, i_90, i_95, i_99] = get_proportion_indexes(y, [.25, .50, .75, .90, .95, .99])
 
-plt.plot(x, y)
-plt.title('Before koNLPy')
+plt.plot(x,y, alpha=0.5)
+plt.scatter(x, y, s=10)
+plt.title(f'Before koNLPy - {SENTENCES_LENGTH} sentences')
 plt.xlabel("#. of words")
 plt.ylabel("Counts")
+plt.annotate(f"25% Value: {x[i_25]}",
+             xy=(x[i_25], y[i_25]), xytext=(40, -10), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+plt.annotate(f"50% Value: {x[i_50]}",
+             xy=(x[i_50], y[i_50]), xytext=(40, -10), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+plt.annotate(f"75% Value: {x[i_75]}",
+             xy=(x[i_75], y[i_75]), xytext=(40, 40), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+plt.annotate(f"90% Value: {x[i_90]}",
+             xy=(x[i_90], y[i_90]), xytext=(40, 50), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+plt.annotate(f"95% Value: {x[i_95]}",
+             xy=(x[i_95], y[i_95]), xytext=(40, 35), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+plt.annotate(f"99% Value: {x[i_99]}",
+             xy=(x[i_99], y[i_99]), xytext=(40, 20), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
 plt.annotate(f"End Value: {x[-1]}",
-  xy=(x[-1], y[-1]), xytext=(-90, 50), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+             xy=(x[-1], y[-1]), xytext=(-90, 50), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
 plt.savefig(PLOT_FN)
 
 # Padding with 0 & shortening too long sentences
-pad_0_and_save(tk_sentences)
+# pad_0_and_save(tk_sentences)
 
 logger.info('All processes are finished!')

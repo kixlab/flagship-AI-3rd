@@ -14,11 +14,11 @@ def print_dt(s):
 	print('[%s] ' % get_current_datetime() + s)
 
 # Read text file and return array of sentences
-def load_text_file(filename, ignore_first=False):
+def load_text_file(filename, ignore_first=False, max_num=10000000):
 	with open(filename, 'rb') as readfile:
 		if ignore_first:
 			lines = []
-			for l in tqdm(readfile.readlines()):
+			for l in tqdm(readfile.readlines()[:max_num]):
 				words = l.decode('utf8', 'ignore').strip().split(' ')
 				if len(words) > 0 and words[0].startswith('[[') and words[0].endswith(']]'):
 					lines.append(' '.join(words[1:]))
