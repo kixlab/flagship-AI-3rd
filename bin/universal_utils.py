@@ -1,6 +1,7 @@
 import time
 import os
 import logging
+from tqdm import tqdm, trange
 from pytz import timezone, utc
 from datetime import datetime
 
@@ -13,9 +14,18 @@ def print_dt(s):
 	print('[%s] ' % get_current_datetime() + s)
 
 # Read text file and return array of sentences
-def load_text_file(filename):
+def load_text_file(filename, ignore_first=False):
 	with open(filename, 'rb') as readfile:
-		lines = [l.decode('utf8', 'ignore').strip()
+		if ignore_first:
+			lines = []
+			for l in tqdm(readfile.readlines()):
+				words = l.decode('utf8', 'ignore').strip().split(' ')
+				if len(words) > 0 and words[0].startswith('[[') and words[0].endswith(']]'):
+					lines.append(' '.join(words[1:]))
+				else:
+					lines.append('')
+		else:
+			lines = [l.decode('utf8', 'ignore').strip()
 								 for l in readfile.readlines()]
 	return lines
 

@@ -10,13 +10,13 @@
 | Community | Big | Medium, but growing |
 | Area | Industrial, Research | Research |
 
-## Word2Vec on Tensorflow vs. Gensim
-
 ## Google Colab
 Google's cutom verison of Jupyter Notebook. It uses google's own virtual machine. (For research & education)
 
 Save data files into personal drive and using them for training
 
+## Draw plots
+Draw plots with matplotlib [Tutorials(Korean)](https://datascienceschool.net/view-notebook/d0b1637803754bb083b5722c9f2209d0/)
 
 ## References
 - [TensorFlow vs PyTorch by. Sai Raj Reddy](https://medium.com/@UdacityINDIA/tensorflow-vs-pytorch-79e7a23f48c5)

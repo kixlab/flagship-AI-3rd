@@ -29,6 +29,19 @@ cd flagship-AI-3rd
 pip install -r requirements.txt
 ```
 
+## How to run projects
+```
+# After installing packages, freeze it to requirements.txt in root path
+pip freeze > requirements.txt
+
+# Before using matplotlib, change backend for matplotlib
+(root_path) echo "backend: TkAgg" >> ~/.matplotlib/matplotlibrc
+# Python code
+import matplotlib as mpl
+mpl.use('TkAgg')
+import matplotlib.pyplot as plt
+```
+
 ## Docs
 
 - [Word Embedding](https://github.com/kixlab/flagship-AI-3rd/blob/master/docs/Embedding.md)
