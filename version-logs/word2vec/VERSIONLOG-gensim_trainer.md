@@ -2,19 +2,24 @@
 
 Version log for gensim word2vec trainer
 
-## v0.1.2 - 170712
+## v0.1.3 - 180731
+
+### Added
+- Replace with custom loggers
+
+## v0.1.2 - 180712
 
 ### Added
 - Log can be removed (Set log_per to 0)
 - Iteration Progress Bar (from tqdm)
 
-## v0.1.1 - 170711
+## v0.1.1 - 180711
 
 ### Added
 - Log for progress and loss
 - Save model for interval
 
-## v0.1 - 170711
+## v0.1 - 180711
 
 ### Added
 - Train word2vec with text file of sentences of words (splited by whitespace)
