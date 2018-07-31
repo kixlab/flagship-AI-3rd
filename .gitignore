@@ -111,8 +111,9 @@ venv.bak/
 # Ignore specific folders
 scripts/
 refs/
-results/
-logs/
+results/*
+logs/*
 
-# Ignore test files
-test.py
+# Except for .keep files
+!results/*.keep
+!logs/*.keep
