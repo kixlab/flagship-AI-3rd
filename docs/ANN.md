@@ -7,3 +7,4 @@
 - [Understanding LSTM Networks](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)
 - [Machine Learning is Fun! Part 4](https://medium.com/@ageitgey/machine-learning-is-fun-part-4-modern-face-recognition-with-deep-learning-c3cffc121d78) / [Korean Ver.](https://medium.com/@jongdae.lim/%EA%B8%B0%EA%B3%84-%ED%95%99%EC%8A%B5-machine-learning-%EC%9D%80-%EC%A6%90%EA%B2%81%EB%8B%A4-part-4-63ed781eee3c)
 - [Backpropagation 설명 예제와 함께 완전히 이해하기](http://jaejunyoo.blogspot.com/2017/01/backpropagation.html)
+- [NDC2018: 딥러닝으로 욕설 탐지하기](http://ndcreplay.nexon.com/NDC2018/sessions/NDC2018_0033.html)

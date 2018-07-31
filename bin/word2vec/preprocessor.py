@@ -12,12 +12,12 @@ import matplotlib.pylab as plt
 BASE_PATH = uu.get_base_path()
 
 ## Variables
-INPUT_FN = os.path.join(BASE_PATH, 'results/script_plain.txt')
-PLOT_FN = os.path.join(BASE_PATH, 'screenshots/180730-500000-plain.png')
-# OUTPUT_FN = os.path.join(BASE_PATH, 'results/180730-padded-500000-plain.txt')
+INPUT_FN = os.path.join(BASE_PATH, 'results/script_filtered_splited.txt')
+PLOT_FN = os.path.join(BASE_PATH, 'screenshots/180731-500000-after.png')
+OUTPUT_FN = os.path.join(BASE_PATH, 'results/180731-padded-500000-splited.txt')
 LOG_FN = os.path.join(BASE_PATH, 'logs/preprocessor.log')
 SENTENCES_LENGTH = 500000
-MAX_WORDS_LENGTH = 0  # If 0, the maximum is max(len(sentences))
+MAX_WORDS_LENGTH = 16  # If 0, the maximum is max(len(sentences))
 
 ## Fucntions
 def reduce_word(w, num=3):
@@ -60,7 +60,7 @@ def pad_0_and_save(ss):
     for s in tqdm(ss):
       length = len(s)
       if length == 0:
-        writefile.write(os.linesep)
+        continue
       else:
         padded_s = ['0'] * (max_length - length) + s
         writefile.write(' '.join(padded_s) + os.linesep)
@@ -89,6 +89,35 @@ def get_proportion_indexes(arr, percents):
       if results[i_idx] == None and sum_arr >= total_arr * p:
         results[i_idx] = idx
   return results
+
+def draw_plot(count):
+  logger.info('Drawing plot...')
+  count_list = sorted(count.items())
+  x, y = zip(*count_list)
+  # i_25, i_50, i_75 = get_three_points(y)
+  [i_25, i_50, i_75, i_90, i_95, i_99] = get_proportion_indexes(
+      y, [.25, .50, .75, .90, .95, .99])
+
+  plt.plot(x, y, alpha=0.5)
+  plt.scatter(x, y, s=10)
+  plt.title(f'After spliting - {SENTENCES_LENGTH} sentences')
+  plt.xlabel("#. of words")
+  plt.ylabel("Counts")
+  plt.annotate(f"25% Value: {x[i_25]}",
+              xy=(x[i_25], y[i_25]), xytext=(40, -10), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"50% Value: {x[i_50]}",
+              xy=(x[i_50], y[i_50]), xytext=(40, -10), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"75% Value: {x[i_75]}",
+              xy=(x[i_75], y[i_75]), xytext=(40, 40), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"90% Value: {x[i_90]}",
+              xy=(x[i_90], y[i_90]), xytext=(40, 50), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"95% Value: {x[i_95]}",
+              xy=(x[i_95], y[i_95]), xytext=(40, 35), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"99% Value: {x[i_99]}",
+              xy=(x[i_99], y[i_99]), xytext=(40, 20), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"End Value: {x[-1]}",
+              xy=(x[-1], y[-1]), xytext=(-90, 50), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.savefig(PLOT_FN)
 
 ## Main
 logger = uu.get_custom_logger('preprocessor', LOG_FN)
@@ -119,34 +148,9 @@ for s in tqdm(tk_sentences):
     count[length] = 1
 
 # Draw plot
-logger.info('Drawing plot...')
-count_list = sorted(count.items())
-x, y = zip(*count_list)
-# i_25, i_50, i_75 = get_three_points(y)
-[i_25, i_50, i_75, i_90, i_95, i_99] = get_proportion_indexes(y, [.25, .50, .75, .90, .95, .99])
-
-plt.plot(x,y, alpha=0.5)
-plt.scatter(x, y, s=10)
-plt.title(f'Before koNLPy - {SENTENCES_LENGTH} sentences')
-plt.xlabel("#. of words")
-plt.ylabel("Counts")
-plt.annotate(f"25% Value: {x[i_25]}",
-             xy=(x[i_25], y[i_25]), xytext=(40, -10), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
-plt.annotate(f"50% Value: {x[i_50]}",
-             xy=(x[i_50], y[i_50]), xytext=(40, -10), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
-plt.annotate(f"75% Value: {x[i_75]}",
-             xy=(x[i_75], y[i_75]), xytext=(40, 40), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
-plt.annotate(f"90% Value: {x[i_90]}",
-             xy=(x[i_90], y[i_90]), xytext=(40, 50), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
-plt.annotate(f"95% Value: {x[i_95]}",
-             xy=(x[i_95], y[i_95]), xytext=(40, 35), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
-plt.annotate(f"99% Value: {x[i_99]}",
-             xy=(x[i_99], y[i_99]), xytext=(40, 20), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
-plt.annotate(f"End Value: {x[-1]}",
-             xy=(x[-1], y[-1]), xytext=(-90, 50), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
-plt.savefig(PLOT_FN)
+# draw_plot(count)
 
 # Padding with 0 & shortening too long sentences
-# pad_0_and_save(tk_sentences)
+pad_0_and_save(tk_sentences)
 
 logger.info('All processes are finished!')

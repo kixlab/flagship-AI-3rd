@@ -1,45 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import os
-import csv
-import tqdm
-import logging
-from pytz import timezone, utc
-from datetime import datetime
+from konlpy.tag import Kkma
 
+kkma = Kkma()
 
-# logger 인스턴스를 생성 및 로그 레벨 설정
-logger = logging.getLogger('name')
-logger.setLevel(logging.DEBUG)
-
-# fileHandler와 StreamHandler를 생성
-fileHandler = logging.FileHandler('./test.log')
-streamHandler = logging.StreamHandler()
-
-fileHandler.setLevel(logging.DEBUG)
-streamHandler.setLevel(logging.INFO)
-
-log_format = '[%(asctime)s:%(lineno)03s] %(message)s'
-formatter = logging.Formatter(log_format)
-
-def customTime(*args):
-  utc_dt = utc.localize(datetime.utcnow())
-  my_tz = timezone("Asia/Seoul")
-  converted = utc_dt.astimezone(my_tz)
-  return converted.timetuple()
-
-logging.Formatter.converter = customTime
-
-fileHandler.setFormatter(formatter)
-streamHandler.setFormatter(formatter)
-
-# Handler를 logging에 추가
-logger.addHandler(fileHandler)
-logger.addHandler(streamHandler)
-
-# logging 
-logger.debug("debug")
-logger.info("info")
-logger.warning("warning")
-logger.error("error")
-logger.critical("critical")
+x = "그리고 그까짓 시험문제 몇 개 틀린 건 문제가 아녜요 집안에 어른들 계셔서 혹시 아이들이 울면 걱정하실 까봐 그냥 웬만한 건 덮어주며 지나가니깐 이젠 공부하기 싫어두 아버님 방으루 건너가구- 혼날 일 저질러 놓면 어머님 방에 숨어서 안 나오려 하지 뭐에요"
+for s in kkma.sentences(x):
+  print(s)

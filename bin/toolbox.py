@@ -4,18 +4,19 @@ import os
 import json
 import math
 import time
+import re
 import universal_utils as uu
 from tqdm import trange, tqdm
 
 ## Varaibles
-directory = '../results/token-scripts-plain'
+# directory = '../results/script_filtered.txt'
 # log_per = 10000
-# input_file = '../results/token-scripts-reduce3-words.json'
-output_file = '../results/script_plain.txt'
+input_file = '../results/180731-padded-500000-splited.txt'
+output_file = '../results/180731-padded-500000-splited.json'
 # words_file = '../results/token-scripts-reduce3-word-list.txt'
 # sentences_file = '../results/token-scripts-reduce3.txt'
 # output_file = '../results/token-scripts-reduce3-skipgram.txt'
-log_file = '../logs/convert_log.log'
+log_file = '../logs/toolbox.log'
 
 ## Functions
 def convert_scripts(direc, log_per):
@@ -31,6 +32,20 @@ def convert_scripts(direc, log_per):
       if (idx % log_per == 0):
         print("Converting step %6d" % idx)
 
+def count_sentences_in_jsons(direc, log_file):
+  logger = uu.get_custom_logger('count_sentences', log_file)
+  logger.info(f"Count sentences in {direc} directory...")
+  total_lines = 0
+  for f in os.listdir(direc):
+    if (f.endswith('.json')):
+      with open(os.path.join(direc, f), 'r') as readfile:
+        dialogs = json.load(readfile)
+        for d in dialogs:
+          for l in d['lines']:
+            if (len(l['message']) > 0):
+              total_lines += 1
+  logger.info(f"Total sentences in {direc}: {total_lines}")
+              
 def convert_script_json_txt(direc, output_fn, log_fn):
   logger = uu.get_custom_logger('convert_json_txt', log_fn)
   start_time = time.time()
@@ -86,6 +101,45 @@ def get_word_frequency_json(input_fn, output_fn, l_p):
   
   print("[%s] All process completed!" % uu.get_current_datetime())
 
+def split_sentences_in_txt(input_fn, output_fn, log_fn):
+  ELLIPSIS_RE = re.compile('\.\.+|…')
+  IN_BRACKETS_RE = re.compile('\(.*?\)')  # Limitation on nested brackets like '(a(b)c)'
+
+  logger = uu.get_custom_logger('toolbox', log_fn)
+  sentences = uu.load_text_file(input_fn)
+  results = []
+  logger.info('Split sentences...')
+  for s in tqdm(sentences):
+    s = s.strip()
+    if len(s) == 0 or s == '' or not s.startswith('[['):
+      results.append('')
+    else:
+      if ' ' not in s:
+        continue
+      result = []
+      speaker = s.split(' ')[0]
+      replaced_s = IN_BRACKETS_RE.sub('', ' '.join(s.split(' ')[1:]))
+      replaced_s = ELLIPSIS_RE.sub(' ', replaced_s)
+      splited_s = ''
+      for w in replaced_s.strip():
+        if w == '.':
+          if len(splited_s) > 0:
+            result.append(speaker + ' ' + splited_s)
+            splited_s = ''
+        elif w == '!' or w == '?':
+          result.append(speaker + ' ' + splited_s + w)
+          splited_s = ''
+        else:
+          splited_s += w
+      if len(splited_s) > 0:
+        result.append(speaker + ' ' + splited_s)
+      results.extend(result)
+  
+  logger.info('Save results...')
+  with open(output_fn, 'w') as writefile:
+    for r in tqdm(results):
+      writefile.write(r + os.linesep)
+  logger.info(f'Done - {len(sentences)} sentences => {len(results)} sentences')
 
 def convert_sci_news():
   SUB_DIRECTORY = 'dataset/sci-news-sum-kr-50/data/'
@@ -282,9 +336,14 @@ def make_omitted_sentences(sentences_fn, output_fn, sentences_num, min_count):
                 % (frequent_words_len, total_words_len, frequent_words_len / total_words_len * 100))
   logger.info("-" * 50)
 
+
 ## Main
 # create_word_list(input_file, output_file)
 # create_skip_grams(words_file, sentences_file, output_file, log_per=log_per)
 # get_info_of_sentences(sentences_file, 500000)
 # make_omitted_sentences(sentences_file, '../results/reduce3-omitted-500000-5.txt', 500000, 5)
-convert_script_json_txt(directory, output_file, log_file)
+# convert_script_json_txt(directory, output_file, log_file)
+# count_sentences_in_jsons(directory, log_file)
+# split_sentences_in_txt(input_file, output_file, log_file)
+# get_word_frequency_json(input_file, output_file, 50000)
+show_counts_log_scale(output_file)
