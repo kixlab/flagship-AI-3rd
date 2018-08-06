@@ -11,8 +11,8 @@ from tqdm import trange, tqdm
 ## Varaibles
 # directory = '../results/script_filtered.txt'
 # log_per = 10000
-input_file = '../results/180731-padded-500000-splited.txt'
-output_file = '../results/180731-padded-500000-splited.json'
+input_file = '../results/token-scripts-reduce3.txt'
+output_file = '../results/180713-gensim-500000sent_final.json'
 # words_file = '../results/token-scripts-reduce3-word-list.txt'
 # sentences_file = '../results/token-scripts-reduce3.txt'
 # output_file = '../results/token-scripts-reduce3-skipgram.txt'
@@ -73,11 +73,11 @@ def cut_sentences(filename, line_num):
 
 # to get the number of frequency of words with json file
 # text file of sentences of tokens (able to be splited by whitespace) -> json file of frequency
-def get_word_frequency_json(input_fn, output_fn, l_p):
+def get_word_frequency_json(input_fn, output_fn, l_p, max_words=500000):
   print("[%s] Import file..." % uu.get_current_datetime())
   with open(input_fn, 'rb') as readfile:
     sentences = [l.decode('utf8', 'ignore')
-                  for l in readfile.readlines()]
+                  for l in readfile.readlines()][:max_words]
     
     print("[%s] Start to count the number of word's presence" % uu.get_current_datetime())
     result = {}
@@ -345,5 +345,5 @@ def make_omitted_sentences(sentences_fn, output_fn, sentences_num, min_count):
 # convert_script_json_txt(directory, output_file, log_file)
 # count_sentences_in_jsons(directory, log_file)
 # split_sentences_in_txt(input_file, output_file, log_file)
-# get_word_frequency_json(input_file, output_file, 50000)
-show_counts_log_scale(output_file)
+get_word_frequency_json(input_file, output_file, 50000)
+# show_counts_log_scale(output_file)
