@@ -16,7 +16,10 @@ Google's cutom verison of Jupyter Notebook. It uses google's own virtual machine
 Save data files into personal drive and using them for training
 
 ## Draw plots
-Draw plots with matplotlib [Tutorials(Korean)](https://datascienceschool.net/view-notebook/d0b1637803754bb083b5722c9f2209d0/)
+- Draw plots with matplotlib
+  - [Tutorials(Korean)](https://datascienceschool.net/view-notebook/d0b1637803754bb083b5722c9f2209d0/)
+  - [Matplotlib tutorial](https://www.labri.fr/perso/nrougier/teaching/matplotlib/)
+  - [virtualenv에 matplotlib 설치하기](http://dukwon.tistory.com/30)
 
 ## References
 - [TensorFlow vs PyTorch by. Sai Raj Reddy](https://medium.com/@UdacityINDIA/tensorflow-vs-pytorch-79e7a23f48c5)
