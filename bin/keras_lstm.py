@@ -1,3 +1,5 @@
+# Refer http://3months.tistory.com/168
+
 # Simple LSTM model using keras
 import os
 import universal_utils as uu
