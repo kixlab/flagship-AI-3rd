@@ -7,12 +7,15 @@ import time
 import re
 import universal_utils as uu
 from tqdm import trange, tqdm
+from random import shuffle
 
 ## Varaibles
 # directory = '../results/script_filtered.txt'
 # log_per = 10000
-input_file = '../results/token-scripts-reduce3.txt'
-output_file = '../results/180713-gensim-500000sent_final.json'
+input_file = '../results/180731-padded-500000-splited-frequent.txt'
+output_file = '../results/180731-500000-final.txt'
+split_output_file = '../results/lstm-testset/ne.txt'
+# words_file = '../results/180731-padded-500000sent_final.json'
 # words_file = '../results/token-scripts-reduce3-word-list.txt'
 # sentences_file = '../results/token-scripts-reduce3.txt'
 # output_file = '../results/token-scripts-reduce3-skipgram.txt'
@@ -178,7 +181,6 @@ def show_counts_log_scale(filename, scale = 2, min_frequency = 5):
 
   print('Total %d of %d words can be used for word2vec! (%f%%)' % (able_words_num, len(counts), (able_words_num / len(counts) * 100)))
 
-
 def create_word_list(words_fn, output_fn, min_frequency = 5, log_per = 100000):
   word_list = []   # Words present over min_frequency
 
@@ -208,7 +210,6 @@ def print_rare_words(counts_fn, max_frequency = 2, print_num = 20):
 
       if (printed_num >= print_num):
         return
-
 
 def create_skip_grams(word_list_fn, sentences_fn, output_fn, window_size=2, log_per=100000):
   # Load sentences
@@ -336,8 +337,78 @@ def make_omitted_sentences(sentences_fn, output_fn, sentences_num, min_count):
                 % (frequent_words_len, total_words_len, frequent_words_len / total_words_len * 100))
   logger.info("-" * 50)
 
+def read_word_dict_json(words_fn, logger):
+  logger.info("Reading word_dict file...")
+  with open(words_fn, encoding="utf-8") as json_file:
+    word_dict = json.loads(json_file.read())
+  word_dict = sorted(word_dict.items(), key=operator.itemgetter(1), reverse=True)
+  logger.info("Complete to read!")
+  return word_dict
+
+def select_with_word_txt(sentences_fn, output_fn, target_word, logger, max_len=10000):
+  logger.info('Start processing...')
+  sentences = uu.load_text_file(sentences_fn)
+  shuffle(sentences)
+
+  positive_ss = []
+  negative_ss = []
+  for s in tqdm(sentences):
+    if s == '':
+      continue
+    is_positive = False
+    for w in s.split(' '):
+      if w == target_word:
+        if len(positive_ss) < max_len:
+          positive_ss.append(s)
+        is_positive = True
+        break
+    if not is_positive and len(negative_ss) < max_len:
+      negative_ss.append(s)
+    if len(positive_ss) >= max_len and len(negative_ss) >= max_len:
+      break
+
+  logger.info("Write results...")
+  filename, file_extension = os.path.splitext(output_fn)
+  with open(f"{filename}_positive{file_extension}", 'w') as writefile:
+    writefile.write(os.linesep.join(positive_ss))
+  with open(f"{filename}_negative{file_extension}", 'w') as writefile:
+    writefile.write(os.linesep.join(negative_ss))
+
+# Warning: Too slow!
+def remove_less_frequent_words(sentences_fn, words_fn, output_fn, logger, frequent_num=5):
+  sentences = uu.load_text_file(sentences_fn)
+  with open(words_fn, 'r') as readfile:
+    words_dict = json.load(readfile)
+  words = list(filter(lambda k: words_dict[k] >= 5, words_dict))
+  new_sentences = []
+  for s in tqdm(sentences):
+    new_words = []
+    for w in s.split(' '):
+      if w == '0' or w in words:
+        new_words.append(w)
+      else:
+        ['0'] + new_words
+    new_sentences.append(' '.join(new_words))
+  
+  with open(output_fn, 'w') as writefile:
+    writefile.write(os.linesep.join(new_sentences))
+
+def adjust_sentence_len(sentences_fn, output_fn, sentence_len=16):
+  sentences = uu.load_text_file(sentences_fn)
+  new_sentences = []
+  for s in tqdm(sentences):
+    words = s.split(' ')
+    if len(words) > sentence_len:
+      words = words[:sentence_len]
+    elif len(words) < sentence_len:
+      words = ['0'] * (sentence_len-len(words)) + words
+    new_sentences.append(' '.join(words))
+  with open(output_fn, 'w') as writefile:
+    writefile.write(os.linesep.join(new_sentences))
 
 ## Main
+logger = uu.get_custom_logger('toolbox', log_file)
+
 # create_word_list(input_file, output_file)
 # create_skip_grams(words_file, sentences_file, output_file, log_per=log_per)
 # get_info_of_sentences(sentences_file, 500000)
@@ -345,5 +416,8 @@ def make_omitted_sentences(sentences_fn, output_fn, sentences_num, min_count):
 # convert_script_json_txt(directory, output_file, log_file)
 # count_sentences_in_jsons(directory, log_file)
 # split_sentences_in_txt(input_file, output_file, log_file)
-get_word_frequency_json(input_file, output_file, 50000)
+# get_word_frequency_json(input_file, output_file, 50000)
 # show_counts_log_scale(output_file)
+select_with_word_txt(output_file, split_output_file, '네', logger)
+# remove_less_frequent_words(input_file, words_file, output_file, logger)
+# adjust_sentence_len(input_file, output_file)

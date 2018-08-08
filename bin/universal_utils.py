@@ -14,19 +14,24 @@ def print_dt(s):
 	print('[%s] ' % get_current_datetime() + s)
 
 # Read text file and return array of sentences
-def load_text_file(filename, ignore_first=False, max_num=10000000):
+def load_text_file(filename, ignore_first=False, max_num=10000000, as_words=False):
 	with open(filename, 'rb') as readfile:
 		if ignore_first:
 			lines = []
 			for l in tqdm(readfile.readlines()[:max_num]):
 				words = l.decode('utf8', 'ignore').strip().split(' ')
 				if len(words) > 0 and words[0].startswith('[[') and words[0].endswith(']]'):
-					lines.append(' '.join(words[1:]))
+					lines.append(
+						' '.join(words[1:]) if not as_words else words[1:])
 				else:
 					lines.append('')
 		else:
-			lines = [l.decode('utf8', 'ignore').strip()
-								 for l in readfile.readlines()]
+			if not as_words:
+				lines = [l.decode('utf8', 'ignore').strip()
+									for l in readfile.readlines()]
+			else:
+				lines = [l.decode('utf8', 'ignore').strip().split(' ')
+									for l in readfile.readlines()]
 	return lines
 
 def get_base_path():
