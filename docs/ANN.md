@@ -13,6 +13,8 @@
 - [Text Classification using Neural Networks](https://machinelearnings.co/text-classification-using-neural-networks-f5cd7b8765c6)
 - [텐서플로우 다중 레이어 뉴럴 네트워크 – First Contact with TensorFlow](https://tensorflow.blog/5-%ED%85%90%EC%84%9C%ED%94%8C%EB%A1%9C%EC%9A%B0-%EB%8B%A4%EC%A4%91-%EB%A0%88%EC%9D%B4%EC%96%B4-%EB%89%B4%EB%9F%B4-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-first-contact-with-tensorflow/)
 - [텐서플로로 LSTM 구현하기](http://www.hanbit.co.kr/channel/category/category_view.html?cms_code=CMS6074576268)
+- [Keras - Keras를 통한 LSTM의 구현](http://3months.tistory.com/168)
+- [Sequence Classification with LSTM Recurrent Neural Networks in Python with Keras](https://machinelearningmastery.com/sequence-classification-lstm-recurrent-neural-networks-python-keras/)
 
 ### Practical Usages
 - [NDC2018: 딥러닝으로 욕설 탐지하기](http://ndcreplay.nexon.com/NDC2018/sessions/NDC2018_0033.html)
