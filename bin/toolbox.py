@@ -11,10 +11,11 @@ from random import shuffle
 
 ## Varaibles
 # directory = '../results/script_filtered.txt'
+vrm_directory = '../scripts/VRMtraining'
 # log_per = 10000
-input_file = '../results/180731-padded-500000-splited-frequent.txt'
-output_file = '../results/180731-500000-final.txt'
-split_output_file = '../results/lstm-testset/ne.txt'
+input_file = '../results/vrm_data_fixed_final.json'
+# output_file = '../results/vrm_data_fixed_final.json'
+# split_output_file = '../results/lstm-testset/ne.txt'
 # words_file = '../results/180731-padded-500000sent_final.json'
 # words_file = '../results/token-scripts-reduce3-word-list.txt'
 # sentences_file = '../results/token-scripts-reduce3.txt'
@@ -406,6 +407,105 @@ def adjust_sentence_len(sentences_fn, output_fn, sentence_len=16):
   with open(output_fn, 'w') as writefile:
     writefile.write(os.linesep.join(new_sentences))
 
+def extract_script_from_vrm(vrm_direc, output_fn):
+  outputs = []
+  for f in tqdm(os.listdir(vrm_direc)):
+    if (f.endswith('.VRM')):
+      with open(os.path.join(vrm_direc, f), 'r') as readfile:
+        contents = readfile.read().split('FF')
+        if len(contents) >= 3:
+          outputs.extend(contents[1:-1])
+  with open(output_fn, 'w') as writefile:
+    writefile.write((os.linesep + os.linesep).join(outputs))
+
+
+def revise_script_from_vrm(input_fn, output_fn, logger):
+  with open(input_fn, 'r') as readfile:
+    contents = readfile.read().split(os.linesep)
+    results = []
+    for c in contents:
+      if (not (c.endswith('UU') or c.endswith('MM'))):
+        results.append(c)
+  with open(output_fn, 'w') as writefile:
+    writefile.write(os.linesep.join(results))
+  logger.info(f"{len(contents) - len(results)} of {len(contents)} are removed!")
+
+def vrm_script_to_json(input_fn, output_fn, logger):
+  in_brackets_re = re.compile('\(.*?\)')
+
+  sentences = uu.load_text_file(input_fn)
+  dialogs = []
+  speechs = []
+  speakers = []
+  speaker = 'A'
+
+  for s in tqdm(sentences):
+    s = s.strip()
+    if s == '':
+      # If blank line, push speechs into dialogs & reset variables
+      if len(speechs) > 0:
+        dialogs.append(speechs)
+      speechs = []
+      speakers = []
+      speaker = 'A'
+    else:
+      # Remove words in parentheses
+      s = in_brackets_re.sub(' ', s)
+
+      # Remove colons between numbers
+      s = re.sub('([0-9]+[:][0-9]+)', (lambda obj: obj.string.replace(':', ' ')), s)
+
+      # Split content and VRM tag
+      content, vrm = s[:-2].strip(), s[-2:]
+
+      # If there is info for speaker, normalize it like 'A', 'B', ...
+      if ':' in content:
+        raw_speaker, content = content.split(':')[0].strip(), content.split(':')[1].strip()
+        if raw_speaker not in speakers:
+          speakers.append(raw_speaker)
+        speaker = chr(65 + speakers.index(raw_speaker))
+      
+      # Save speech into speechs
+      speechs.append({
+        'speaker': speaker,
+        'utterance': content,
+        'vrm': vrm
+      })
+  
+  with open(output_fn, 'w') as writefile:
+    json.dump(dialogs, writefile)
+
+def remove_duplicates_vrm_json(input_fn, output_fn, logger):
+  with open(input_fn, 'r') as readfile:
+    dialogs = json.load(readfile)
+    no_dup = []
+    possible_dup = []
+  for d in dialogs:
+    if len(d) > 1:
+      no_dup.append(d)
+    else:
+      possible_dup.extend(d)
+  removed_dup = [[dict(t)] for t in {tuple(d.items()) for d in possible_dup}]
+  logger.info(f"Remove duplicates in vrm.json: {len(possible_dup)} > {len(removed_dup)}")
+
+  with open(output_fn, 'w') as writefile:
+    json.dump(no_dup + removed_dup, writefile)
+
+def test_integrity_vrm_json(input_fn, logger):
+  vrm_category = ['D', 'E', 'A', 'C', 'Q', 'K', 'I', 'R', 'U']
+
+  with open(input_fn, 'r') as readfile:
+    dialogs = json.load(readfile)
+  invalid_vrm_num = 0
+  invalid_speaker_num = 0
+  for d in dialogs:
+    for u in d:
+      if (u['speaker'] not in ['A', 'B', 'C']):
+        invalid_speaker_num += 1
+      if (len(u['vrm']) != 2 or u['vrm'][0] not in vrm_category or u['vrm'][1] not in vrm_category):
+        invalid_vrm_num += 1
+  logger.info(f'Invalid speaker: {invalid_speaker_num}, Invalid VRM: {invalid_vrm_num}')
+
 ## Main
 logger = uu.get_custom_logger('toolbox', log_file)
 
@@ -418,6 +518,10 @@ logger = uu.get_custom_logger('toolbox', log_file)
 # split_sentences_in_txt(input_file, output_file, log_file)
 # get_word_frequency_json(input_file, output_file, 50000)
 # show_counts_log_scale(output_file)
-select_with_word_txt(output_file, split_output_file, '네', logger)
+# select_with_word_txt(output_file, split_output_file, '네', logger)
 # remove_less_frequent_words(input_file, words_file, output_file, logger)
 # adjust_sentence_len(input_file, output_file)
+# extract_script_from_vrm(vrm_directory)
+# vrm_script_to_json(input_file, output_file, logger)
+# remove_duplicates_vrm_json(input_file, output_file, logger)
+test_integrity_vrm_json(input_file, logger)
