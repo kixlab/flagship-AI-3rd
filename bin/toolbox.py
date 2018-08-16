@@ -8,6 +8,9 @@ import re
 import universal_utils as uu
 from tqdm import trange, tqdm
 from random import shuffle
+import matplotlib as mpl
+import matplotlib.pylab as plt
+import numpy as np
 
 ## Varaibles
 # directory = '../results/script_filtered.txt'
@@ -506,6 +509,42 @@ def test_integrity_vrm_json(input_fn, logger):
         invalid_vrm_num += 1
   logger.info(f'Invalid speaker: {invalid_speaker_num}, Invalid VRM: {invalid_vrm_num}')
 
+def count_intent_vrm_json(input_fn, logger):
+  with open(input_fn, 'r') as readfile:
+    dialogs = json.load(readfile)
+  
+  vrms = {}
+  for d in dialogs:
+    for speech in d:
+      vrm = speech['vrm'][-1]
+      if vrm in vrms:
+        vrms[vrm] += 1
+      else:
+        vrms[vrm] = 1
+  
+  # logger.info("Intent VRM codes...")
+  # for k in vrms.keys():
+  #   logger.info(f"{k}: {vrms[k]}")
+
+  X = np.array(sorted(vrms, key=vrms.get, reverse=True))
+  Y = np.array(sorted(vrms.values(), reverse=True))
+  total_vrms = sum(vrms.values())
+  mpl.rc('font', **{'size': 12})
+  plt.title("Intent VRMs in script")
+  plt.bar(X, Y, 1, facecolor="#ef5350", edgecolor="white")
+  for x,y in zip(X, Y):
+    plt.text(x, y+0.5, '%d' % y, ha='center', va='bottom')
+    if y == Y[-1]:
+      plt.text(x, y+24, '(%.1f%%)' % (y / total_vrms * 100), ha='center', va='bottom', color="#999999")
+    else:
+      plt.text(x, y-30, '%.1f%%' % (y / total_vrms * 100), ha='center', va='bottom', color="white")
+
+  plt.margins(0.05, 0.1)
+  plt.show()
+  
+
+
+
 ## Main
 logger = uu.get_custom_logger('toolbox', log_file)
 
@@ -524,4 +563,5 @@ logger = uu.get_custom_logger('toolbox', log_file)
 # extract_script_from_vrm(vrm_directory)
 # vrm_script_to_json(input_file, output_file, logger)
 # remove_duplicates_vrm_json(input_file, output_file, logger)
-test_integrity_vrm_json(input_file, logger)
+# test_integrity_vrm_json(input_file, logger)
+count_intent_vrm_json(input_file, logger)

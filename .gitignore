@@ -120,3 +120,5 @@ logs/*
 
 # Ignore env in root path
 !/.env
+
+**/test.py
