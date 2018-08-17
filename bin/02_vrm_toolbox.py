@@ -11,14 +11,21 @@ from random import shuffle
 import matplotlib as mpl
 import matplotlib.pylab as plt
 import numpy as np
+from gensim.models import KeyedVectors
+from random import shuffle
+
 
 ## Varaibles
 # directory = '../results/script_filtered.txt'
 vrm_directory = '../scripts/VRMtraining'
-input_file = '../dataset/vrm/vrm_data_fixed_final.json'
-output_name = '../dataset/vrm/vrm_single'
-# output_file = '../results/vrm_data_fixed_final.json'
+# input_file = '../dataset/vrm/vrm_single_content.txt'
+input_file = '../dataset/vrm/vrm_single_tokenized_v3.txt'
+# output_name = '../dataset/vrm/vrm_test.txt'
+model_path = '../results/GoogleNews-vectors-negative300.bin'
+output_file = "../dataset/vrm/vrm-single-tokenized-v3.json"
 log_file = '../logs/toolbox.log'
+content_file = '../dataset/vrm/vrm_single_tokenized_v3.txt'
+vrm_file = '../dataset/vrm/vrm_single_vrm.txt'
 
 ## Functions
 
@@ -182,6 +189,94 @@ def convert_vrms_to_text(input_fn, output_name, logger):
   with open(output_name + '_vrm.txt', 'w') as writefile:
     writefile.write(os.linesep.join(vrms))
 
+def tokenize_vrm_content(input_fn, output_fn, model_path ,logger):
+  token_re = re.compile("[a-zA-Z]+[']*[a-zA-z]*|[0-9]")
+
+  logger.info("Load word2vec model...")
+  model = KeyedVectors.load_word2vec_format(model_path, binary="True")
+  word_vectors = model.wv
+
+  sentences = uu.load_text_file(input_fn)
+  result = []
+  for s in tqdm(sentences):
+    tokens = token_re.findall(s)
+    for t in tokens:
+      try:
+        word_vectors.get_vector(t)
+      except KeyError as e:
+        logger.info(f'"{t}" is removed.')
+        tokens.remove(t)
+    result.append(' '.join(tokens))
+  
+  with open(output_fn, 'w') as writefile:
+    writefile.write(os.linesep.join(result))
+
+def _get_proportion_indexes(arr, percents):
+  total_arr = sum(arr)
+  sum_arr = 0
+  results = [None for i in range(len(percents))]
+  for idx, v in enumerate(arr):
+    sum_arr += v
+    for i_idx, p in enumerate(percents):
+      if results[i_idx] == None and sum_arr >= total_arr * p:
+        results[i_idx] = idx
+  return results
+
+def draw_word_frequency_plot(input_fn, logger):
+  sentences = uu.load_text_file(input_fn, as_words=True)
+
+  count = {}
+  for s in sentences:
+    length = len(s)
+    if length == 0:
+      continue
+    if length in count:
+      count[length] += 1
+    else:
+      count[length] = 1
+  
+  logger.info('Drawing plot...')
+  count_list = sorted(count.items())
+  x, y = zip(*count_list)
+  # i_25, i_50, i_75 = get_three_points(y)
+  [i_25, i_50, i_75, i_90, i_95, i_99] = _get_proportion_indexes(
+      y, [.25, .50, .75, .90, .95, .99])
+
+  plt.plot(x, y, alpha=0.5)
+  plt.scatter(x, y, s=10)
+  plt.title(f'#. words in tokenized VRM script sentences')
+  plt.xlabel("#. of words")
+  plt.ylabel("Counts")
+  plt.annotate(f"25% Value: {x[i_25]}",
+              xy=(x[i_25], y[i_25]), xytext=(40, 30), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"50% Value: {x[i_50]}",
+              xy=(x[i_50], y[i_50]), xytext=(40, 10), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"75% Value: {x[i_75]}",
+              xy=(x[i_75], y[i_75]), xytext=(40, 30), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"90% Value: {x[i_90]}",
+              xy=(x[i_90], y[i_90]), xytext=(40, 50), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"95% Value: {x[i_95]}",
+              xy=(x[i_95], y[i_95]), xytext=(40, 35), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"99% Value: {x[i_99]}",
+              xy=(x[i_99], y[i_99]), xytext=(30, 20), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.annotate(f"End Value: {x[-1]}",
+              xy=(x[-1], y[-1]), xytext=(-60, 70), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+  plt.show()
+
+def generate_usable_vrm_set(content_fn, vrm_fn, output_fn, logger):
+  contents = uu.load_text_file(content_fn)
+  vrms = uu.load_text_file(vrm_fn)
+  vrm_sets = []
+  for c, vrm in zip(contents, vrms):
+    if contents != '':
+      vrm_sets.append({
+        'content': c,
+        'vrm': vrm
+      })
+  shuffle(contents)
+  with open(output_fn, 'w') as writefile:
+    json.dump(vrm_sets, writefile)
+
 
 ## Main
 logger = uu.get_custom_logger('toolbox', log_file)
@@ -191,4 +286,7 @@ logger = uu.get_custom_logger('toolbox', log_file)
 # remove_duplicates_vrm_json(input_file, output_file, logger)
 # test_integrity_vrm_json(input_file, logger)
 # count_intent_vrm_json(input_file, logger)
-convert_vrms_to_text(input_file, output_name, logger)
+# convert_vrms_to_text(input_file, output_name, logger)
+# tokenize_vrm_content(input_file, output_file, model_path, logger)
+# draw_word_frequency_plot(input_file, logger)
+generate_usable_vrm_set(content_file, vrm_file, output_file, logger)
