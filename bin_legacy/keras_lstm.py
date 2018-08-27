@@ -7,8 +7,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 from gensim.models import Word2Vec
-from keras.layers import LSTM, Dropout, Dense
+from keras.layers import LSTM, Dropout
 from keras.models import Sequential
+from keras.layers import Dense
 import keras.backend as K
 from keras.callbacks import EarlyStopping, Callback, TensorBoard, ModelCheckpoint
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score

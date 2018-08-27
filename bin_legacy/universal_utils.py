@@ -34,6 +34,13 @@ def load_text_file(filename, ignore_first=False, max_num=10000000, as_words=Fals
 									for l in readfile.readlines()]
 	return lines
 
+def write_file(data, filename, json=False, joiner=os.linesep):
+	with open(filename, 'w') as writefile:
+		if json:
+			json.dump(data, writefile, ensure_ascii=False)
+		else:
+			writefile.write(joiner.join(data))
+
 def get_base_path():
 	bin_path = os.path.dirname( os.path.abspath( __file__ ) )
 	base_path = os.path.abspath(os.path.join(bin_path, os.pardir))
