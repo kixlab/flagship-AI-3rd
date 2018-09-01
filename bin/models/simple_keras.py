@@ -16,7 +16,7 @@ class SimpleKeras:
     # Create LSTM Model
     K.clear_session()
     self.model = Sequential()
-    self.model.add(LSTM(128, input_shape=(13, 300)))
+    self.model.add(LSTM(64, input_shape=(13, 300)))
     self.model.add(Dropout(0.2))
     self.model.add(Dense(1, activation='sigmoid'))
     self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
