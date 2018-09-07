@@ -4,7 +4,7 @@ from utils.word2vec import load_word2vec_wv
 from models.simple_keras import SimpleKeras
 
 # Variables
-model_name = "180901-lstm-64-disclosure"
+model_name = "180907-lstm-128-disclosure"
 input_fn = '../dataset/vrm/vrm-single-tokenized-v3.json'
 model_fn = '../results/GoogleNews-vectors-negative300.bin'
 

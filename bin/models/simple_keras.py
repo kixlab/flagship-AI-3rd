@@ -1,5 +1,5 @@
 from keras.layers import LSTM, Dropout, Dense
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 import keras.backend as K
 from keras.callbacks import EarlyStopping, Callback, TensorBoard, ModelCheckpoint
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
@@ -16,7 +16,7 @@ class SimpleKeras:
     # Create LSTM Model
     K.clear_session()
     self.model = Sequential()
-    self.model.add(LSTM(64, input_shape=(13, 300)))
+    self.model.add(LSTM(128, input_shape=(13, 300)))
     self.model.add(Dropout(0.2))
     self.model.add(Dense(1, activation='sigmoid'))
     self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -79,12 +79,15 @@ class SimpleKeras:
 
     filepath = "../models/" + self.model_name + "-{epoch:02d}-{val_acc:.2f}.hdf5"
     modelcheckpoint = ModelCheckpoint(filepath, monitor='accuracy', verbose=0,
-                    save_best_only=False, save_weights_only=False, mode='auto', period=20)
+                    save_best_only=False, save_weights_only=False, mode='auto', period=15)
     # early_stop = EarlyStopping(monitor='loss', patience=1, verbose=1)
     callback_list = [
       # early_stop,
       eval_iter, metrics, modelcheckpoint]
-    self.model.fit(X_train_t, Y_train_t, validation_data=(X_test_t, Y_test_t), epochs=500, batch_size=64, verbose=1, callbacks=callback_list)
+    self.model.fit(X_train_t, Y_train_t, validation_data=(X_test_t, Y_test_t), epochs=15, batch_size=64, verbose=1, callbacks=callback_list)
+
+  def load_model(self, filepath):
+    self.model = load_model(filepath)
 
   def _load_data(self, data):
     X_train_t = data['X_train_t']

@@ -24,9 +24,7 @@ def pad_to_tokens(tokens, max_len):
     result = tokens[:max_len]
   return result
 
-
-
-def create_vrm_dataset(input_fn, wv, logger, max_len=13, train_ratio=0.85):
+def create_vrm_dataset(input_fn, wv, logger, max_len=13, train_ratio=0.85, is_intent=True, target_vrm='D', get_raw_test=False):
   logger.write(f"Load vrm data: {input_fn}...")
   data = utils.file.read_json(input_fn)
 
@@ -35,7 +33,9 @@ def create_vrm_dataset(input_fn, wv, logger, max_len=13, train_ratio=0.85):
   X_negative = []
   for d in data:
     content = pad_to_tokens(d['content'].split(' '), max_len)
-    if d['vrm'].endswith('D'):
+    if is_intent and d['vrm'].endswith(target_vrm):
+      X_positive.append(content)
+    elif not is_intent and d['vrm'].startswith(target_vrm):
       X_positive.append(content)
     else:
       X_negative.append(content)
@@ -69,16 +69,30 @@ def create_vrm_dataset(input_fn, wv, logger, max_len=13, train_ratio=0.85):
   print(f"Data: X_train - {X_train_t.shape}, X_test - {X_test_t.shape}")
   print(f"Data: Y_train - {Y_train_t.shape}, Y_test - {Y_test_t.shape}")
 
-  # return X_train_t, X_test_t, Y_train_t, Y_test_t
-  return {
+  result = {
     'X_train_t': X_train_t,
     'X_test_t': X_test_t,
     'Y_train_t': Y_train_t,
     'Y_test_t': Y_test_t
   }
 
+  if get_raw_test:
+    X_test_raw = X_positive[positive_train_len:] + X_negative[negative_train_len:]
+    X_test_raw = list(map(lambda x: ' '.join([ele for ele in x if ele is not ' ']), X_test_raw))
+    Y_test = [1] * (len(X_positive) - positive_train_len) + \
+        [0] * (len(X_negative) - negative_train_len)
+    
+    result['X_test_raw'] = X_test_raw
+    result['Y_test'] = Y_test
+
+  return result
+
 def _get_embedding_vector(word, wv):
   try:
     return wv[word]
   except KeyError:
     return [0] * 300
+
+def flatten_once(nparr):
+  shape = nparr.shape
+  return nparr.reshape(shape[:-2] + (-1,))
