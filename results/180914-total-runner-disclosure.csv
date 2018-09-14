@@ -1,0 +1,272 @@
+,X_test_raw,Y_test,tag_test,lstm,forest,svm
+0,I be dizzy about five or ten minutes,1,DD,0.9365247,0,0
+1,that's it,1,ED,0.5295294,0,0
+2,Let me leave you gown,1,AD,0.15961963,0,0
+3,so I can listen your heart,1,DD,0.8076686,1,0
+4,I'll be with you in one moment,1,DD,0.19979149,0,0
+5,Let me show you,1,AD,0.37916243,0,0
+6,I'll leave it back there for you,1,DD,0.74845713,0,0
+7,Um hum,1,KD,0.19495638,0,0
+8,Uh uh,1,KD,0.20323761,1,0
+9,I'm just gonna feel under your arm,1,DD,0.9447733,0,0
+10,The same thing,1,DD,0.3666906,0,0
+11,I'm just gonna feel the glands in your neck,1,DD,0.9826506,0,0
+12,This cold,1,DD,0.092206456,0,0
+13,No,1,KD,0.2229037,0,0
+14,It gets worse at night,1,ED,0.5827036,0,0
+15,Let me just take listen your breathing for second,1,AD,0.92464674,0,0
+16,I'm gonna take look in your ear,1,DD,0.8340027,0,0
+17,I'm gonna go back,1,DD,0.48471636,0,0
+18,take another look at this one,1,DD,0.5807069,0,0
+19,Uh uh,1,KD,0.20323761,1,0
+20,I'll sit talk you for second,1,DD,0.10201141,0,0
+21,I'm gonna be out,1,DD,0.9058128,0,0
+22,Let me explain you what I've seen,1,AD,0.9681912,0,0
+23,It's hard tell,1,ED,0.32373694,0,0
+24,When I use it it usually does fine for me,1,ED,0.9980531,0,0
+25,So I'll give you the prescription,1,DD,0.031158566,0,0
+26,I'm going charge it,1,DD,0.24679713,0,0
+27,Then we'll give you pharmacy card,1,DD,0.0012587599,0,0
+28,we'll take another look at you,1,DD,0.17653787,0,0
+29,I'm going stay out tomorrow make sure,1,DD,0.98956966,0,0
+30,Um um,1,KD,0.6720482,1,0
+31,Or I'll tell them who did it,1,DD,0.1400822,0,0
+32,I'm going fill that for you outside cause I don't have another sheet,1,DD,0.9986713,0,0
+33,we'll fill that out outside,1,CD,0.0069887456,0,0
+34,We couldn't get here sooner,1,DD,0.7116084,0,0
+35,Fuck you,1,UD,0.29435703,0,0
+36,I guess so,1,DD,0.77024525,0,0
+37,It was like chest pain,1,ED,0.56494164,0,0
+38,I won't do that,1,DD,0.98910904,1,0
+39,He was my best friend,1,ED,0.8214737,0,0
+40,I'm going check your ears now,1,DD,0.03829543,0,0
+41,Sometimes I'm bored,1,DD,0.76744246,0,0
+42,You I are quite team,1,CD,0.062749475,0,0
+43,WHAT,1,QD,0.11455434,0,0
+44,It's really annoying me,1,ED,0.9398118,0,0
+45,Fish scare me,1,ED,0.920637,0,0
+46,Here we go,1,CD,0.019051367,0,0
+47,You know I can't stand the sight snakes,1,RD,0.9271669,0,0
+48,I feel absolutely overwhelmed,1,DD,0.9264384,1,0
+49,I don't know,1,DD,0.93220043,1,0
+50,Goodness gracious,1,UD,0.61553264,0,0
+51,Isn't she beaut,1,QD,0.105986185,0,0
+52,I was terrified,1,DD,0.85683286,0,0
+53,I'm going the library,1,DD,0.13488159,0,0
+54,Mr Smith seems normal me,1,ED,0.22590174,0,0
+55,Matilda George I love you,1,DD,0.7083516,0,0
+56,I saw the boat,1,DD,0.1655511,0,0
+57,My throat hurts,1,ED,0.7560025,0,0
+58,We'll send you upstairs for some X rays,1,DD,0.10352524,0,0
+59,Let's look at that ear,1,AD,0.048409157,0,0
+60,We won't let you go without prescription,1,DD,0.6512984,0,0
+61,We love you,1,DD,0.7264406,0,0
+62,I have been surprised,1,QD,0.94240797,0,0
+63,I know the way out,1,DD,0.8337556,1,0
+64,I love you,1,DD,0.9518022,0,0
+65,We will look forward having you on our staff,1,DD,0.4470612,0,0
+66,I want pony,1,DD,0.57580125,0,0
+67,If it was blue one I would buy it,1,DD,0.9608509,0,0
+68,Good see you,1,ED,0.03417366,0,0
+69,I'm afraid spiders,1,DD,0.97129506,0,0
+70,Thank you,1,DD,0.4410803,0,0
+71,It's not worth repeating the X ray,1,ED,0.54515123,0,0
+72,Farewell forever,1,UD,0.18802103,0,0
+73,It's like floating on air,1,ED,0.073115356,0,0
+74,Let's get you pharmacy card,0,AA,0.006489527,0,0
+75,Um after you get the pharmacy card the secretary that talked you about,0,EE,0.0034901293,0,0
+76,You feel like you can do that for us,0,QA,0.007438488,0,0
+77,Okay,0,IC,0.022188852,0,0
+78,Well,0,KK,0.050825976,0,0
+79,can I have the excuse before you leave,0,QA,0.9202405,0,0
+80,Yep,0,KC,0.047198307,0,0
+81,So why don't you come with me,0,QA,0.38505295,0,0
+82,Guess how many fingers I'm holding up,0,AA,0.06075205,0,0
+83,Forgot your keys,0,RQ,0.011915431,0,0
+84,You eat lot fatty foods then,0,RR,0.0013383949,0,0
+85,If you go you'll regret it,0,II,0.00831189,0,0
+86,Forget your keys,0,QQ,0.23880447,0,0
+87,,0,KQ,0.24653807,0,0
+88,Goodbye Sam,0,KK,0.08210359,0,0
+89,You drove home afterwards,0,RR,0.0033389437,0,0
+90,It feels as if you're always on the line,0,ER,0.0003959572,0,0
+91,You didn't bring can opener,0,RQ,0.003356835,0,0
+92,You should forget her,0,AA,0.008986176,0,0
+93,It's probably your own fault,0,EI,0.5080007,0,0
+94,Where are we heading,0,QQ,0.008556288,0,0
+95,You want go,0,RQ,0.009571312,0,0
+96,Could you,0,QQ,0.10206056,0,0
+97,Could your embarrassment be way avoiding conflict,0,QI,0.07305082,0,0
+98,I see,0,DK,0.26760688,0,0
+99,You may always contact me if things get rough,0,AA,0.9109926,0,0
+100,My mother I both came,0,DE,0.09080074,0,0
+101,We believe in strong America,0,CC,0.074228056,0,0
+102,He did what,0,QQ,0.11344689,0,0
+103,Whoever is on the mat loves me,0,EE,0.97469306,0,0
+104,What,0,QQ,0.20449756,0,0
+105,You are doing just fine,0,II,8.933051e-05,0,0
+106,If I'm not mistaken he was first,0,EE,0.19054604,0,0
+107,That's right,0,EI,0.09909402,0,0
+108,Never mind,0,AA,0.46665245,0,0
+109,You can't lift car by yourself,0,II,0.027321488,0,0
+110,You have diabetes,0,IE,0.004730214,0,0
+111,We want you begin this project tomorrow,0,DA,0.16241555,0,0
+112,We've about exhausted that topic,0,CC,0.46195486,0,0
+113,Please wash your hands,0,AA,0.070918575,0,0
+114,That's an awful thing say,0,EI,0.41055614,0,0
+115,You will soon discover that the main concern this book is with the,0,II,0.001316764,0,0
+116,A White House spokesman read the response,0,EE,0.005448055,0,0
+117,Yeah,0,KK,0.24718161,0,0
+118,Okay,0,IK,0.022188852,0,0
+119,Dummy,0,II,0.29722103,0,0
+120,You I disagree about cats,0,CC,0.027038088,0,0
+121,So you still feel sick,0,RQ,0.11472473,0,0
+122,You don't have high blood pressure,0,IE,0.0001404078,0,0
+123,So you are retired now,0,RQ,0.00068126654,0,0
+124,I think you're just too stupid,0,DI,0.99380964,0,0
+125,Okay Sam,0,IC,0.17992973,0,0
+126,You may kiss the bride,0,AA,0.00015738267,0,0
+127,You may have an infection,0,IE,0.0012702891,0,0
+128,I see,0,DK,0.26760688,0,0
+129,You I disagree,0,CC,0.15439108,0,0
+130,We disagree about that,0,CC,0.07479429,0,0
+131,They never come down rest,0,EE,0.013002432,0,0
+132,It stopped working when you dropped it,0,EQ,0.030741787,0,0
+133,No smoking,0,AA,0.098826036,0,0
+134,They told me take it easy,0,EE,0.21881552,0,0
+135,Put on this robe,0,AA,0.0043108384,0,0
+136,You should avoid gaining any more weight,0,AA,0.004629305,0,0
+137,You stopped where,0,QQ,0.0032468368,0,0
+138,I guess you know that they're taping us,0,DR,0.9967199,0,0
+139,Dr Bales,0,KK,0.044129364,0,0
+140,You can go in now,0,AA,0.00045358957,0,0
+141,You were very frightened,0,RR,0.041699145,0,0
+142,Me too,0,DC,0.21816939,0,0
+143,I think all spiders have eight legs,0,DE,0.7293754,0,0
+144,Which do you prefer,0,QQ,0.18364061,0,0
+145,You me agree,0,CC,0.07037674,0,0
+146,Would you hop on the examination table please,0,QA,0.00087759114,0,0
+147,How,0,QQ,0.114456795,0,0
+148,You must be exhausted,0,RR,0.0013795582,0,0
+149,You love me,0,RR,0.73206985,0,0
+150,Fine,0,IK,0.06931417,0,0
+151,Are we ready,0,QQ,0.008547745,0,0
+152,You feel afraid,0,RR,0.26715234,0,0
+153,Is that so,0,QK,0.024574459,0,0
+154,Have you ever you were falling,0,QQ,0.00030915992,0,0
+155,You left without him,0,RQ,0.007518558,0,0
+156,Hi there,0,KK,0.38913867,0,0
+157,You say you're too heavy,0,RQ,0.00012214873,0,0
+158,What do you want me do,0,QQ,0.16136144,0,0
+159,We better not try that,0,CA,0.7591095,0,0
+160,We are being tape recorded,0,CQ,0.0030867485,0,0
+161,You're right,0,II,0.05142279,0,0
+162,Are you ready,0,QQ,0.007832751,0,0
+163,You are an angry young man,0,II,0.0058752475,0,0
+164,You shouldn't work so hard,0,AA,0.013252296,0,0
+165,This time you're not alone,0,IE,0.021973858,0,0
+166,You should exercise more,0,AA,0.00095061766,0,0
+167,He hit you,0,EQ,0.017288344,0,0
+168,And this,0,AA,0.1377939,0,0
+169,Hi George,0,KK,0.23961323,0,0
+170,you ashamed yourself,0,QI,0.63986695,0,0
+171,Lie down on the mat,0,AA,0.14647526,0,0
+172,They couldn't come,0,EE,0.15484306,0,0
+173,I wish you'd slow down,0,DA,0.5755303,0,0
+174,Right,0,II,0.025975544,0,0
+175,Are you saying then that you feel both angry hurt,0,QR,7.275346e-05,0,0
+176,I disagree with you,0,DC,0.39136744,0,0
+177,The cat is on the mat,0,EE,0.12408849,0,0
+178,Could you get me drink,0,QA,0.060105506,0,0
+179,I agree with you,0,DC,0.6441127,0,0
+180,They said I was in good shape,0,EE,0.4766942,0,0
+181,We can,0,CQ,0.06801478,0,0
+182,Uh huh,0,KE,0.14919409,0,0
+183,We love carrots,0,CC,0.50238776,0,0
+184,It's mutual feeling,0,EC,0.2886259,0,0
+185,You feel like you've been used,0,RR,0.009984461,0,0
+186,It hasn't come yet,0,EE,0.27554673,0,0
+187,You wanted chocolate,0,RQ,0.009346746,0,0
+188,Try harder,0,AA,0.6558323,0,0
+189,You're my favorite dancer,0,II,0.5610856,0,0
+190,Do you love me,0,QQ,0.66611725,0,0
+191,You're saying How can I organize it all for myself,0,RR,0.41864836,0,0
+192,You can do anything you set your mind,0,II,0.005261768,0,0
+193,I'd like beer,0,DA,0.7527572,0,0
+194,Will you take off your glasses please,0,QA,0.0009573021,0,0
+195,See if you can lift that leg higher,0,AA,0.0026970624,0,0
+196,We need begin your physical exam now,0,CA,0.012314674,0,0
+197,You are identifying with your mother's hostility,0,II,0.00067358196,0,0
+198,Please pass the carrots,0,AA,0.0038868242,0,0
+199,Fine job,0,II,0.055144947,0,0
+200,Matilda,0,KK,0.09049397,0,0
+201,You have see this movie,0,AA,0.022874115,0,0
+202,My father raped me when I was 1 2 years old,0,EE,0.2850265,0,0
+203,Hello,0,KK,0.054236066,0,0
+204,You say you feel nervous,0,RR,0.0041777166,0,0
+205,We disagree,0,CC,0.3110267,0,0
+206,You're just like Matilda,0,II,0.15479203,0,0
+207,George,0,KA,0.15655328,0,0
+208,Well,0,KK,0.050825976,0,0
+209,Would you like try on these slacks,0,QQ,0.000531794,0,0
+210,We'll send you upstairs for some X rays,0,DE,0.10352524,0,0
+211,We don't seem know each other very well,0,CC,0.24263303,0,0
+212,We agree that the plan is sound,0,CC,0.30391294,0,0
+213,You must be tired,0,RR,0.004156088,0,0
+214,You can do it if you want,0,II,0.003633274,0,0
+215,You won't regret that,0,II,0.66373926,0,0
+216,Everything seems normal,0,EI,0.15098436,0,0
+217,You are high risk person,0,II,0.001229026,0,0
+218,I went see him,0,DE,0.57159686,0,0
+219,Where are you,0,QQ,0.021889402,0,0
+220,Good,0,II,0.15874429,0,0
+221,We are going where,0,QQ,0.026378851,0,0
+222,You may not play in the street,0,AA,0.00041803188,0,0
+223,I wonder if you aren't basically afraid him,0,DI,0.9990357,0,0
+224,The tumor is malignant,0,EE,0.21808375,0,0
+225,Howdy,0,KK,0.12418427,0,0
+226,How are you,0,QK,0.027718632,0,0
+227,We better get started,0,CA,0.51207614,0,0
+228,Where is the cat,0,QQ,0.016746163,0,0
+229,You may come back next week,0,AA,0.00073183904,0,0
+230,You disagree with me,0,RR,0.03012642,0,0
+231,You wish you had more money,0,RR,0.0052704103,0,0
+232,Sir,0,KQ,0.23947018,0,0
+233,Once it begins you can't stop it,0,IE,0.16139668,0,0
+234,Let's get going,0,AA,0.27032685,0,0
+235,My mother I waited for you,0,DE,0.10526733,0,0
+236,You can't get this medicine without prescription,0,IE,0.002512435,0,0
+237,Hi,0,KK,0.017415848,0,0
+238,You think that getting away will solve your problems,0,RR,0.9684017,0,0
+239,We're just like Matilda George,0,CC,0.6852127,0,0
+240,Where,0,QQ,0.05970799,0,0
+241,Mm hm,0,KK,0.32477313,0,0
+242,I walked here with Janet,0,DE,0.16986138,0,0
+243,It was your fault that he left,0,EI,0.03771793,0,0
+244,We've had long day,0,CC,0.064784914,0,0
+245,Now take five deep breaths slowly,0,AA,0.014804987,0,0
+246,Could you,0,QA,0.10206056,0,0
+247,So what,0,QQ,0.35287273,0,0
+248,Everything seems normal,0,EI,0.15098436,0,0
+249,You ate the carrots,0,RR,0.0017275121,0,0
+250,You feel dizzy when you stand,0,RQ,0.0047524227,0,0
+251,Home I ran,0,DE,0.09004969,0,0
+252,Last time we really enjoyed this,0,CC,0.83329654,0,0
+253,Code this,0,AA,0.08301355,0,0
+254,Let's talk about this now instead next week,0,AA,0.7788421,0,0
+255,You're welcome,0,II,0.19143303,0,0
+256,We'll see,0,CK,0.17353939,0,0
+257,Cream in your coffee,0,QQ,0.14178045,0,0
+258,She loves me,0,EE,0.85433775,0,0
+259,You know Jimmy too,0,RR,0.045772146,0,0
+260,I'm not on time,0,DQ,0.47988558,0,0
+261,Why did you say that,0,QQ,0.0039783833,0,0
+262,Are you the owner,0,QQ,0.0013697748,0,0
+263,I think my blood pressure is 1 0 0 6 0,0,DE,0.15198784,0,0
+264,You are sure that,0,RQ,0.0020296248,0,0
+265,You bet,0,AK,0.04252993,0,0
+266,You say the nicest things,0,II,0.16966434,0,0
+267,Must be,0,EK,0.017639644,0,0
+268,Help,0,AA,0.111101575,0,0
+269,That's right,0,EI,0.09909402,0,0
+270,Good work,0,II,0.045585696,0,0

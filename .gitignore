@@ -111,7 +111,7 @@ venv.bak/
 # Ignore specific folders
 scripts/
 refs/
-results/*
+results-nosave/*
 logs/*
 
 # Except for .keep files
