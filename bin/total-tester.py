@@ -9,20 +9,21 @@ from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_
 from keras.models import load_model
 
 # Variables
-logger_name = "180900-total-runner"
+tester_name = "180914-total-runner-disclosure"
 
 models = {
   'lstm': "../models/180907-lstm-128-disclosure-15-0.78.hdf5",
-  'forest': '../models/forest-1000.pkl',
-  # 'svm': ''
+  'forest': '../models/180907-forest-1000-disclosure.pkl',
+  'svm': '../models/180910-svm-basic-disclosure.pkl'
 }
 embedding_fn = '../results/GoogleNews-vectors-negative300.bin'
 data_fn = '../dataset/vrm/vrm-single-tokenized-v3.json'
 
-output_fn = '../results/180907-disclosure-test.csv'
+output_fn = f'../results/{tester_name}.csv'
+output_statstics = f'../results/{tester_name}_stat.csv'
 
 # Initiate Logger
-logger = Logger(logger_name)
+logger = Logger(tester_name)
 
 # Load word2vec
 logger.console("Load word2vec embedding...")
@@ -34,22 +35,28 @@ data = create_vrm_dataset(data_fn, wv, logger, get_raw_test=True)
 # Append data for output
 print_data = {
   'X_test_raw': data['X_test_raw'],
+  'tag_test': data['tag_test'],
   'Y_test': data['Y_test']
 }
+stats_data = {}
 
 # Test with trained models
 for k in models:
   if k == 'lstm':
     model = load_model(models[k])
-    print_data['lstm'] = model.predict(data['X_test_t']).reshape(-1)
-    
-  elif k == 'forest':
+    X_test_t = data['X_test_t']
+    Y_test_t = data['Y_test_t']
+    val_predict = model.predict(X_test_t)
+    val_targ = Y_test_t
+    print_data[k] = model.predict(X_test_t).reshape(-1)
+  else:
     model = joblib.load(models[k])
     X_test_t = flatten_once(data['X_test_t'])
     Y_test_t = flatten_once(data['Y_test_t'])
     val_predict = model.predict(X_test_t)
     val_targ = Y_test_t
-    print_data['forest'] = val_predict
+    print_data[k] = val_predict
+  
 
 # Write csv file with print_data
 for k in print_data:

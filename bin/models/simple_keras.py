@@ -23,7 +23,7 @@ class SimpleKeras:
 
     self.model.summary()
   
-  def train(self, data):
+  def train(self, data, epoch=20, save_per=20):
     model_name = self.model_name
 
     # Callback Classes
@@ -79,12 +79,12 @@ class SimpleKeras:
 
     filepath = "../models/" + self.model_name + "-{epoch:02d}-{val_acc:.2f}.hdf5"
     modelcheckpoint = ModelCheckpoint(filepath, monitor='accuracy', verbose=0,
-                    save_best_only=False, save_weights_only=False, mode='auto', period=15)
+                    save_best_only=False, save_weights_only=False, mode='auto', period=save_per)
     # early_stop = EarlyStopping(monitor='loss', patience=1, verbose=1)
     callback_list = [
       # early_stop,
       eval_iter, metrics, modelcheckpoint]
-    self.model.fit(X_train_t, Y_train_t, validation_data=(X_test_t, Y_test_t), epochs=15, batch_size=64, verbose=1, callbacks=callback_list)
+    self.model.fit(X_train_t, Y_train_t, validation_data=(X_test_t, Y_test_t), epochs=epoch, batch_size=64, verbose=1, callbacks=callback_list)
 
   def load_model(self, filepath):
     self.model = load_model(filepath)

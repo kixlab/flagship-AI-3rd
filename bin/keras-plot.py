@@ -5,14 +5,15 @@ import numpy as np
 import pandas as pd
 
 # Variables
-json_path = '../results/180901-lstm-64-disclosure-results.json'
+model_name = '180914-lstm-128-presumption-test-results'
+json_path = f'../results/{model_name}.json'
 
 # Data
 data = utils.file.read_json(json_path)
 df = pd.DataFrame(data)
 
 # multiple line plot
-plt.title('180901-lstm-64-disclosure')
+plt.title(model_name)
 plt.plot('losses', data=df, color='#FF9E9D', linewidth=2)
 plt.plot('accuracies', data=df, color='#7FC7AF', linewidth=2)
 plt.plot('val_losses', data=df, color='#FF3D7F', linewidth=2)

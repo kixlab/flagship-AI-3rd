@@ -24,21 +24,38 @@ def pad_to_tokens(tokens, max_len):
     result = tokens[:max_len]
   return result
 
-def create_vrm_dataset(input_fn, wv, logger, max_len=13, train_ratio=0.85, is_intent=True, target_vrm='D', get_raw_test=False):
+def create_vrm_dataset(input_fn, wv, logger, max_len=13, train_ratio=0.85, is_intent=True, target_vrm='D', get_raw_test=False, target_preset=None):
   logger.write(f"Load vrm data: {input_fn}...")
   data = utils.file.read_json(input_fn)
+
+  if target_preset == 'source':
+    target_vrm = ['C', 'A', 'D', 'E']
+  elif target_preset == 'frame':
+    target_vrm = ['I', 'Q', 'A', 'D']
+  elif target_preset == 'presumption':
+    target_vrm = ['K', 'Q', 'E', 'D']
+
+  def is_target_vrm(x):
+    if type(target_vrm) is str:
+      return x.endswith(target_vrm) if is_intent else x.startswith(target_vrm)
+    elif type(target_vrm) is list:
+      return x[1] in target_vrm if is_intent else x[0] in target_vrm
+    else:
+      return None
 
   # Divide data into positive or negative ones.
   X_positive = []
   X_negative = []
+  tag_positive = []
+  tag_negative = []
   for d in data:
     content = pad_to_tokens(d['content'].split(' '), max_len)
-    if is_intent and d['vrm'].endswith(target_vrm):
+    if is_target_vrm(d['vrm']):
       X_positive.append(content)
-    elif not is_intent and d['vrm'].startswith(target_vrm):
-      X_positive.append(content)
+      tag_positive.append(d['vrm'])
     else:
       X_negative.append(content)
+      tag_negative.append(d['vrm'])
 
   logger.write(f"Positive set: {len(X_positive)}")
   logger.write(f"Negative set: {len(X_negative)}")
@@ -65,6 +82,7 @@ def create_vrm_dataset(input_fn, wv, logger, max_len=13, train_ratio=0.85, is_in
   Y_train_t = np.array([[1]] * positive_train_len + [[0]] * negative_train_len)
   Y_test_t = np.array([[1]] * (len(X_positive) - positive_train_len) +
                       [[0]] * (len(X_negative) - negative_train_len))
+  tag_test = tag_positive[positive_train_len:] + tag_negative[negative_train_len:]
 
   print(f"Data: X_train - {X_train_t.shape}, X_test - {X_test_t.shape}")
   print(f"Data: Y_train - {Y_train_t.shape}, Y_test - {Y_test_t.shape}")
@@ -73,7 +91,8 @@ def create_vrm_dataset(input_fn, wv, logger, max_len=13, train_ratio=0.85, is_in
     'X_train_t': X_train_t,
     'X_test_t': X_test_t,
     'Y_train_t': Y_train_t,
-    'Y_test_t': Y_test_t
+    'Y_test_t': Y_test_t,
+    'tag_test': tag_test
   }
 
   if get_raw_test:
