@@ -1,4 +1,5 @@
 import re
+from nltk.stem import LancasterStemmer
 import utils.file
 import numpy as np
 from gensim.models import KeyedVectors
@@ -115,3 +116,40 @@ def _get_embedding_vector(word, wv):
 def flatten_once(nparr):
   shape = nparr.shape
   return nparr.reshape(shape[:-2] + (-1,))
+
+def get_dict_count(d, category_name):
+  result = {}
+  for item in d:
+    category = item[category_name]
+    if category in result.keys():
+      result[category] += 1
+    else:
+      result[category] = 1
+  return result
+
+def tokenize_sentence_swda(s):
+  # Remove words in [ ... ]
+  s = re.sub(r"\[[^\]]*\]", "", s)
+  
+  # Remove words in < ... >
+  s = re.sub(r"\<[^\>]*\>", "", s)
+
+  # Remove a character after {
+  s = re.sub(r"\{[A-Za-z]([^\}]*)\}", r"\1", s)
+
+  # Only select English and ! ?
+  token_re = re.compile("[a-zA-Z!?]+")
+  tokens = token_re.findall(s)
+
+  st = LancasterStemmer()
+  tokens = [st.stem(w) for w in tokens]
+
+  return tokens
+
+def count_tag(data, tags):
+  result = 0
+  for t in tags:
+    for k in data:
+      if (k['tag'].startswith(t)):
+        result += d[k]
+  return result

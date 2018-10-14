@@ -122,3 +122,4 @@ logs/*
 !/.env
 
 **/test.py
+/data-da/**
