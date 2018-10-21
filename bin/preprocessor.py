@@ -5,6 +5,7 @@ from utils.data import get_dict_count, tokenize_sentence_swda, count_tag
 import csv
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import random
 
 # csv_direc = "../data-da/SWDA"
 # output_file = "../data-da/swda-set.json"
@@ -13,7 +14,9 @@ import matplotlib.pyplot as plt
 # output_file = "../data-da/swda-set-tokenized.json"
 
 data_file = "../data-da/swda-set-tokenized.json"
-output_file = "../data-da/swda-set-tags.csv"
+# output_file = "../data-da/swda-set-tags.csv"
+train_file = "../data-da/swda-set-train.json"
+test_file = "../data-da/swda-set-test.json"
 
 def read_files_in_direc(direc, file_ext=""):
   results = []
@@ -68,24 +71,88 @@ def read_files_in_direc(direc, file_ext=""):
 # print(len(result))
 # write_file(result, output_file, is_json=True)
 
+# data = read_json(data_file)
+
+# counts = get_dict_count(data, 'tag')
+# total_sum = sum(counts.values())
+# counts_for_plot = {
+#   'd': count_tag(counts, ['t3', 't1', 'sv']),
+#   's': count_tag(counts, ['sd']),
+#   'k': count_tag(counts, ['ny', 'no', 'nn', 'ng', 'na', 'ft', 'bk', 'arp_nd', 'ar', 'aa']),
+#   'a': count_tag(counts, ['ad']),
+#   'c': count_tag(counts, ['oo', 'co', 'cc'])
+# }
+# print(counts_for_plot)
+
+# with open(output_file, 'w') as writefile:
+#   writer = csv.writer(writefile)
+
+#   writer.writerow(['category', 'count', 'percentage'])
+#   for k in counts_for_plot:
+#     writer.writerow([
+#         k, counts_for_plot[k], "%.2f" % (counts_for_plot[k] / total_sum * 100)
+#     ])
+
 data = read_json(data_file)
+random.shuffle(data)
 
-counts = get_dict_count(data, 'tag')
-total_sum = sum(counts.values())
-counts_for_plot = {
-  'd': count_tag(counts, ['t3', 't1', 'sv']),
-  's': count_tag(counts, ['sd']),
-  'k': count_tag(counts, ['ny', 'no', 'nn', 'ng', 'na', 'ft', 'bk', 'arp_nd', 'ar', 'aa']),
-  'a': count_tag(counts, ['ad']),
-  'c': count_tag(counts, ['oo', 'co', 'cc'])
+train_size = 0.8
+
+tags_dict = {
+  'd': [],
+  's': [],
+  'k': [],
+  'a': [],
+  'c': [],
+  'x': []
 }
-print(counts_for_plot)
+for d in data:
+  if d['tag'][:2] in ['t3', 't1', 'sv']:
+    tags_dict['d'].append({
+      'tokens': d['tokens'],
+      'tag': 'd'
+    })
+  elif d['tag'][:2] in ['sd']:
+    tags_dict['s'].append({
+        'tokens': d['tokens'],
+        'tag': 's'
+    })
+  elif d['tag'][:2] in ['ny', 'no', 'nn', 'ng', 'na', 'ft', 'bk', 'ar', 'aa'] or d['tag'].startswith('arp_nd'):
+    tags_dict['k'].append({
+        'tokens': d['tokens'],
+        'tag': 'k'
+    })
+  elif d['tag'][:2] in ['ad']:
+    tags_dict['a'].append({
+        'tokens': d['tokens'],
+        'tag': 'a'
+    })
+  elif d['tag'][:2] in ['oo', 'co', 'cc']:
+    tags_dict['c'].append({
+        'tokens': d['tokens'],
+        'tag': 'c'
+    })
+  else:
+    tags_dict['x'].append({
+        'tokens': d['tokens'],
+        'tag': 'x'
+    })
 
-with open(output_file, 'w') as writefile:
-  writer = csv.writer(writefile)
+train_set = []
+test_set = []
 
-  writer.writerow(['category', 'count', 'percentage'])
-  for k in counts_for_plot:
-    writer.writerow([
-        k, counts_for_plot[k], "%.2f" % (counts_for_plot[k] / total_sum * 100)
-    ])
+for k in tags_dict:
+  train_idx = int(len(tags_dict[k]) * train_size)
+  train_set += tags_dict[k][:train_idx]
+  test_set += tags_dict[k][train_idx:]
+
+write_file(train_set, train_file, is_json=True)
+write_file(test_set, test_file, is_json=True)
+
+# counts_for_plot = {
+#   'd': count_tag(counts, ['t3', 't1', 'sv']),
+#   's': count_tag(counts, ['sd']),
+#   'k': count_tag(counts, ['ny', 'no', 'nn', 'ng', 'na', 'ft', 'bk', 'arp_nd', 'ar', 'aa']),
+#   'a': count_tag(counts, ['ad']),
+#   'c': count_tag(counts, ['oo', 'co', 'cc'])
+# }

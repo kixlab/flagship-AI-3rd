@@ -138,7 +138,7 @@ def tokenize_sentence_swda(s):
   s = re.sub(r"\{[A-Za-z]([^\}]*)\}", r"\1", s)
 
   # Only select English and ! ?
-  token_re = re.compile("[a-zA-Z!?]+")
+  token_re = re.compile("[a-zA-Z]+|\!|\?")
   tokens = token_re.findall(s)
 
   st = LancasterStemmer()
@@ -151,5 +151,5 @@ def count_tag(data, tags):
   for t in tags:
     for k in data:
       if (k['tag'].startswith(t)):
-        result += d[k]
+        result += data[k]
   return result
