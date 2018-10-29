@@ -7,6 +7,8 @@ from utils.file import read_json
 from sklearn.metrics import classification_report, accuracy_score
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.externals import joblib
 from utils.logger import Logger
 
 train_file = "../data-da/swda-set-train.json"
@@ -30,29 +32,32 @@ X_train, y_train = split_x_y(train_data, 'tokens', 'tag')
 test_data = read_json(test_file)
 X_test, y_test = split_x_y(test_data, 'tokens', 'tag')
 
-# NB
-# md = Pipeline([('vect', CountVectorizer()),
-#                ('tfidf', TfidfTransformer()),
-#                ('clf', MultinomialNB()),
-#                ])
+models = [
+  { 'name': 'NB', 'model': MultinomialNB() },
+  { 'name': 'SVM',
+    'model': SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, random_state=42, max_iter=5, tol=None) },
+  { 'name': 'LogisticRegression',
+    'model': LogisticRegression(n_jobs=1, C=1e5)},
+  { 'name': 'RandomForest', 'model': RandomForestClassifier(n_estimators=200, max_depth=3, random_state=0) }
+]
 
-# SVM
-# md = Pipeline([('vect', CountVectorizer()),
-#                 ('tfidf', TfidfTransformer()),
-#                 ('clf', SGDClassifier(loss='hinge', penalty='l2',alpha=1e-3, random_state=42, max_iter=5, tol=None)),
-#                ])
+for mds in models:
+  name = mds['name']
+  md_part = mds['model']
 
-# Logistic Regression
-md = Pipeline([('vect', CountVectorizer()),
-                   ('tfidf', TfidfTransformer()),
-                   ('clf', LogisticRegression(n_jobs=1, C=1e5)),
-                   ])
+  md = Pipeline([('vect', CountVectorizer()),
+                    ('tfidf', TfidfTransformer()),
+                    ('clf', md_part),
+                    ])
 
 
-md.fit(X_train, y_train)
+  md.fit(X_train, y_train)
 
-y_pred = md.predict(X_test)
+  model_path = f'../models/181028-swda-{name}.pkl'
+  joblib.dump(md, model_path)
 
-logger.write('<Logistic Regression model>')
-logger.write('accuracy %s' % accuracy_score(y_pred, y_test))
-logger.write(classification_report(y_test, y_pred, labels=my_labels, target_names=my_tags))
+  y_pred = md.predict(X_test)
+
+  logger.write(f'<{name} model>')
+  logger.write('accuracy %s' % accuracy_score(y_pred, y_test))
+  logger.write(classification_report(y_test, y_pred, labels=my_labels, target_names=my_tags))

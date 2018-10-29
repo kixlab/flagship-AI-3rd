@@ -28,7 +28,7 @@ def read_json(input_fn):
 		data = json.load(readfile)
 	return data
 
-def write_file(data, filename, is_json=False, joiner=os.linesep):
+def write_file(data, filename, is_json=False, joiner=os.linesep, csv_=None):
 	with open(filename, 'w') as writefile:
 		if is_json:
 			json.dump(data, writefile, ensure_ascii=False)

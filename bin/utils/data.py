@@ -127,7 +127,7 @@ def get_dict_count(d, category_name):
       result[category] = 1
   return result
 
-def tokenize_sentence_swda(s):
+def tokenize_sentence_swda(s, delimiter=None):
   # Remove words in [ ... ]
   s = re.sub(r"\[[^\]]*\]", "", s)
   
@@ -143,6 +143,9 @@ def tokenize_sentence_swda(s):
 
   st = LancasterStemmer()
   tokens = [st.stem(w) for w in tokens]
+
+  if delimiter:
+    return delimiter.join(tokens)
 
   return tokens
 

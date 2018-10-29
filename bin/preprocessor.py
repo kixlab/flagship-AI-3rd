@@ -7,6 +7,9 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import random
 
+from collections import Counter
+from imblearn.under_sampling import ClusterCentroids
+
 # csv_direc = "../data-da/SWDA"
 # output_file = "../data-da/swda-set.json"
 # input_file = "../data-da/swda-set.json"
@@ -15,8 +18,9 @@ import random
 
 data_file = "../data-da/swda-set-tokenized.json"
 # output_file = "../data-da/swda-set-tags.csv"
-train_file = "../data-da/swda-set-train.json"
-test_file = "../data-da/swda-set-test.json"
+# train_file = "../data-da/swda-set-train.json"
+# test_file = "../data-da/swda-set-test.json"
+output_file = '../data-da/swda-set-undersampled.csv'
 
 def read_files_in_direc(direc, file_ext=""):
   results = []
@@ -93,61 +97,82 @@ def read_files_in_direc(direc, file_ext=""):
 #         k, counts_for_plot[k], "%.2f" % (counts_for_plot[k] / total_sum * 100)
 #     ])
 
+# data = read_json(data_file)
+# random.shuffle(data)
+
+# tags_dict = {
+#   'd': [],
+#   'e': [],
+#   'k': [],
+#   # 'a': [],
+#   # 'c': [],
+#   'x': []
+# }
+# for d in data:
+#   if d['tag'][:2] in ['t3', 't1', 'sv']:
+#     tags_dict['d'].append({
+#       'tokens': d['tokens'],
+#       'tag': 'd'
+#     })
+#   elif d['tag'][:2] in ['sd']:
+#     tags_dict['e'].append({
+#         'tokens': d['tokens'],
+#         'tag': 'e'
+#     })
+#   elif d['tag'][:2] in ['ny', 'no', 'nn', 'ng', 'na', 'ft', 'bk', 'ar', 'aa'] or d['tag'].startswith('arp_nd'):
+#     tags_dict['k'].append({
+#         'tokens': d['tokens'],
+#         'tag': 'k'
+#     })
+#   # elif d['tag'][:2] in ['ad']:
+#   #   tags_dict['a'].append({
+#   #       'tokens': d['tokens'],
+#   #       'tag': 'a'
+#   #   })
+#   # elif d['tag'][:2] in ['oo', 'co', 'cc']:
+#   #   tags_dict['c'].append({
+#   #       'tokens': d['tokens'],
+#   #       'tag': 'c'
+#   #   })
+#   else:
+#     tags_dict['x'].append({
+#         'tokens': d['tokens'],
+#         'tag': 'x'
+#     })
 data = read_json(data_file)
 random.shuffle(data)
 
-train_size = 0.8
-
-tags_dict = {
-  'd': [],
-  's': [],
-  'k': [],
-  'a': [],
-  'c': [],
-  'x': []
-}
+X = []
+y = []
 for d in data:
   if d['tag'][:2] in ['t3', 't1', 'sv']:
-    tags_dict['d'].append({
-      'tokens': d['tokens'],
-      'tag': 'd'
-    })
+    X.append(d['tokens'])
+    y.append('d')
   elif d['tag'][:2] in ['sd']:
-    tags_dict['s'].append({
-        'tokens': d['tokens'],
-        'tag': 's'
-    })
+    X.append(d['tokens'])
+    y.append('e')
   elif d['tag'][:2] in ['ny', 'no', 'nn', 'ng', 'na', 'ft', 'bk', 'ar', 'aa'] or d['tag'].startswith('arp_nd'):
-    tags_dict['k'].append({
-        'tokens': d['tokens'],
-        'tag': 'k'
-    })
-  elif d['tag'][:2] in ['ad']:
-    tags_dict['a'].append({
-        'tokens': d['tokens'],
-        'tag': 'a'
-    })
-  elif d['tag'][:2] in ['oo', 'co', 'cc']:
-    tags_dict['c'].append({
-        'tokens': d['tokens'],
-        'tag': 'c'
-    })
+    X.append(d['tokens'])
+    y.append('k')
   else:
-    tags_dict['x'].append({
-        'tokens': d['tokens'],
-        'tag': 'x'
-    })
+    X.append(d['tokens'])
+    y.append('x')
 
-train_set = []
-test_set = []
 
-for k in tags_dict:
-  train_idx = int(len(tags_dict[k]) * train_size)
-  train_set += tags_dict[k][:train_idx]
-  test_set += tags_dict[k][train_idx:]
+print(X[0])
 
-write_file(train_set, train_file, is_json=True)
-write_file(test_set, test_file, is_json=True)
+cc = ClusterCentroids(random_state=0)
+X_resampled, y_resampled = cc.fit_resample(X, y)
+print(sorted(Counter(y_resampled).items()))
+
+
+# for k in tags_dict:
+#   train_idx = int(len(tags_dict[k]) * train_size)
+#   train_set += tags_dict[k][:train_idx]
+#   test_set += tags_dict[k][train_idx:]
+
+# write_file(train_set, train_file, is_json=True)
+# write_file(test_set, test_file, is_json=True)
 
 # counts_for_plot = {
 #   'd': count_tag(counts, ['t3', 't1', 'sv']),
