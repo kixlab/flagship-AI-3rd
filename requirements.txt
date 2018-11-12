@@ -34,6 +34,7 @@ protobuf==3.6.0
 pycodestyle==2.4.0
 pylint==1.9.2
 pyparsing==2.2.0
+python-crfsuite==0.9.6
 python-dateutil==2.7.3
 pytz==2018.5
 PyYAML==3.13
@@ -42,7 +43,9 @@ s3transfer==0.1.13
 scikit-learn==0.20.0
 scipy==1.1.0
 six==1.11.0
+sklearn-crfsuite==0.3.6
 smart-open==1.6.0
+tabulate==0.8.2
 tensorboard==1.9.0
 tensorflow==1.9.0
 termcolor==1.1.0

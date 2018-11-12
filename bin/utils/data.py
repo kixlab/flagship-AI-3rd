@@ -2,6 +2,7 @@ import re
 from nltk.stem import LancasterStemmer
 import utils.file
 import numpy as np
+import pandas as pds
 from gensim.models import KeyedVectors
 
 def tokenize_sentence_vrm(sentence, wv):
@@ -126,6 +127,11 @@ def get_dict_count(d, category_name):
     else:
       result[category] = 1
   return result
+
+# def get_array_count(X, y):
+#   tt
+
+# def encode_one_hot():
 
 def tokenize_sentence_swda(s, delimiter=None):
   # Remove words in [ ... ]
