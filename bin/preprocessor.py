@@ -61,7 +61,7 @@ def aggregate_sw_csvs(direc, output_name):
         if len(X_ele) <= 0:
           continue
         X_start_with_I = '1' if X_ele[0].startswith("I/") else '0'
-        X_len = str(len(X_ele))
+        X_len = str(len(X_ele.split(' ')))
         if idx > 1 and row[5] == prev_speaker:
           X_speaker = '1'
         else:
