@@ -1,16 +1,23 @@
 from keras import Sequential
-from keras.layers import GRU, Embedding, Dense
+from keras.layers import GRU, Embedding, Dense, TimeDistributed, Bidirectional, Flatten, LSTM
+from keras.models import Model, Input
 from keras.callbacks import EarlyStopping, Callback, TensorBoard, ModelCheckpoint
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
+from keras_contrib.layers import CRF
 import numpy as np
 
 class BigruCrf:
-  def __init__(self, input_size, embedding_size=32, gru_size=64):
+  def __init__(self, input_size, max_len, embedding_size=32, gru_size=64):
     self.model = Sequential()
-    self.model.add(Embedding(input_size, embedding_size))
-    self.model.add(GRU(gru_size, dropout=0.2, recurrent_dropout=0.2))
-    self.model.add(Dense(7, activation='softmax'))
-    self.model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    self.model.add(Embedding(input_size, embedding_size, input_length=max_len))
+    self.model.add(Bidirectional(GRU(units=gru_size, return_sequences=True,
+                               recurrent_dropout=0.2, dropout=0.2)))
+    self.model.add(TimeDistributed(Dense(gru_size, activation="relu")))
+    
+    crf = CRF(4)
+    self.model.add(crf)
+    self.model.compile(loss=crf.loss_function, optimizer='adam', metrics=['accuracy'])
+
     self.model.summary()
 
   def fit(self, X, y, X_test, y_test, epochs=1):

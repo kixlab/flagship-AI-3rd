@@ -6,16 +6,18 @@ from models.bigru_crf import BigruCrf
 from keras.models import load_model
 from sklearn.metrics import classification_report, accuracy_score
 from utils.logger import Logger
+from keras_contrib.layers import CRF
+from collections import Counter
 
 data_X_fn = '../data-da/swda-data-pos_X.csv'
 data_y_fn = '../data-da/swda-data-pos_y.csv'
 data_pos_tags = '../data-da/swda-data-pos_dict.txt'
 data_y_tags = '../data-da/swda-data-y_dict.txt'
-model_path = '../models/181111-test.h5'
+model_path = '../models/181119-test-bigrucrf.h5'
 
 sent_len = 21
 
-my_labels = [1, 2, 3, 4]
+my_labels = [0,1,2,3]
 my_tags = ['e', 'x', 'd', 'k']
 
 def remove_new_lines(X):
@@ -44,7 +46,7 @@ def convert_pos_to_idx(X, tags_fn, y=False):
       result.append(list(map(lambda x: pos_dict.index(x) + 1, line)))
   else:
     result = [pos_dict.index(x) for x in X]
-  return result, len(pos_dict) + 1
+  return result, (len(pos_dict) if y else len(pos_dict) + 1)
 
 def get_count(X):
   result = {}
@@ -80,6 +82,25 @@ def pad_X(X, max_len, pad_word=0):
       result.append(line[:max_len])
   return np.array(result)
 
+def convert_one_hot(x, pos_len, y=False):
+  if not y:
+    result = []
+    for line in x:
+      new = np.zeros((line.shape[0], pos_len))
+      new[np.arange(line.shape[0]), line] = 1
+      result.append(new)
+    return np.array(result)
+  else:
+    new = np.zeros((x.shape[0], pos_len))
+    new[np.arange(x.shape[0]), x] = 1
+    return np.array(list(map(lambda x: [x], new)))
+
+def convert_to_integer(x):
+  result = []
+  for line in x:
+    result.append([np.where(r == 1)[0][0] for r in line][-1])
+  return result
+
 def draw_plot(x, y):
   [i_25, i_50, i_75, i_90, i_95, i_99] = _get_proportion_indexes(
       y, [.25, .50, .75, .90, .95, .99])
@@ -101,6 +122,27 @@ def draw_plot(x, y):
                xy=(x[-1], y[-1]), xytext=(-60, 70), textcoords='offset points', arrowprops=dict(arrowstyle="->"))
   plt.show()
 
+def create_custom_objects():
+    instanceHolder = {"instance": None}
+
+    class ClassWrapper(CRF):
+        def __init__(self, *args, **kwargs):
+            instanceHolder["instance"] = self
+            super(ClassWrapper, self).__init__(*args, **kwargs)
+
+    def loss(*args):
+        method = getattr(instanceHolder["instance"], "loss_function")
+        return method(*args)
+
+    def accuracy(*args):
+        method = getattr(instanceHolder["instance"], "accuracy")
+        return method(*args)
+    return {"ClassWrapper": ClassWrapper, "CRF": ClassWrapper, "loss": loss, "accuracy": accuracy}
+
+def load_keras_model(path):
+    model = load_model(path, custom_objects=create_custom_objects())
+    return model
+
 
 # Load logger
 # logger = Logger('crf-runner')
@@ -120,13 +162,20 @@ y = [x for x in y if len(x) > 0]
 # write_dict(X, data_pos_tags)
 # write_dict(y, data_y_tags)
 
+logger = Logger('bigrucrf')
+
 
 # Convert pos array into index array
 X, pos_len = convert_pos_to_idx(X, data_pos_tags)
 X = pad_X(X, sent_len)
 X = np.array(X)
-y, _ = convert_pos_to_idx(y, data_y_tags, y=True)
-y = np.array(y)
+# X = convert_one_hot(np.array(X), pos_len)
+# print(X.shape)
+y, ans_len = convert_pos_to_idx(y, data_y_tags, y=True)
+# print(ans_len)
+y = convert_one_hot(np.array(y), ans_len, y=True)
+# u = np.array(y)
+# print(y[:10])
 
 # Split data
 split_index = int(X.shape[0] * .85)
@@ -134,14 +183,26 @@ X_train = X[:split_index]
 X_test = X[split_index:]
 y_train = y[:split_index]
 y_test = y[split_index:]
+# print(X_train[100])
+# print(X_test.shape)
+sent_len = X_train.shape[1]
 
 # Keras
-model = BigruCrf(pos_len)
-model.fit(X_train, y_train, X_test, y_test, epochs=15)
-model.save(model_path)
+# model = BigruCrf(pos_len, sent_len)
+# model.fit(X_train, y_train, X_test, y_test, epochs=5)
+# model.save(model_path)
 
 # Test
-# model = load_model(model_path)
-# y_pred = model.predict(X_test)
-# logger.write('accuracy %s' % accuracy_score(y_pred, y_test))
-# logger.write(classification_report(y_test, y_pred, labels=my_labels, target_names=my_tags))
+model = load_keras_model(model_path)
+y_pred = model.predict(X_test)
+y_test = convert_to_integer(y_test)
+y_pred = convert_to_integer(y_pred)
+
+# print(Counter(y_test))
+# sum = 0
+# for i in range(len(y_test)):
+#   if (np.array_equal(y_pred[-1], y_test[-1])):
+#     sum += 1
+# print(f'acc: {sum / len(y_test)}')
+logger.write('accuracy %s' % accuracy_score(y_pred, y_test))
+logger.write(classification_report(y_test, y_pred, labels=my_labels, target_names=my_tags))
