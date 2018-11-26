@@ -1,5 +1,5 @@
 from keras import Sequential
-from keras.layers import GRU, Embedding, Dense, TimeDistributed, Bidirectional, Flatten, LSTM
+from keras.layers import GRU, Embedding, Dense, TimeDistributed, Bidirectional, Flatten, LSTM, MaxPooling1D
 from keras.models import Model, Input
 from keras.callbacks import EarlyStopping, Callback, TensorBoard, ModelCheckpoint
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
@@ -13,6 +13,7 @@ class BigruCrf:
     self.model.add(Bidirectional(GRU(units=gru_size, return_sequences=True,
                                recurrent_dropout=0.2, dropout=0.2)))
     self.model.add(TimeDistributed(Dense(gru_size, activation="relu")))
+    self.model.add(MaxPooling1D(pool_length=max_len))
     
     crf = CRF(4)
     self.model.add(crf)
