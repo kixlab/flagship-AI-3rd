@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pylab as plt
 from utils.file import load_text_file, write_file
+from utils.word2vec import load_word2vec_wv
 from collections import Counter, OrderedDict
 from models.bigru_crf import BigruCrf
 from keras.models import load_model
@@ -9,11 +10,13 @@ from utils.logger import Logger
 from keras_contrib.layers import CRF
 from collections import Counter
 
+embedding_fn = '../results-nosave/GoogleNews-vectors-negative300.bin'
+
 data_X_fn = '../data-da/swda-data-pos_X.csv'
 data_y_fn = '../data-da/swda-data-pos_y.csv'
 data_pos_tags = '../data-da/swda-data-pos_dict.txt'
 data_y_tags = '../data-da/swda-data-y_dict.txt'
-model_path = '../models/181119-test-bigrucrf.h5'
+model_path = '../models/181130-test-bigrucrf.h5'
 
 sent_len = 21
 
@@ -95,6 +98,11 @@ def convert_one_hot(x, pos_len, y=False):
     new[np.arange(x.shape[0]), x] = 1
     return np.array(list(map(lambda x: [x], new)))
 
+def convert_one_hot_single(idx, pos_len):
+  new = np.zeros(pos_len)
+  new[idx] = 1
+  return new
+
 def convert_to_integer(x):
   result = []
   for line in x:
@@ -143,14 +151,37 @@ def load_keras_model(path):
     model = load_model(path, custom_objects=create_custom_objects())
     return model
 
+def convert_sent_to_vectors(sent, word_vec, pos_dict_fn, offset=3, embedding_len=300, sent_len=21):
+  pos_dict = load_text_file(pos_dict_fn)
+  result = []
+  pos_len = len(pos_dict) + 1
+  for item in sent[:-offset]:
+    word, pos = item.split('/')
+    try:
+      vec_word = word_vec[word]
+    except KeyError:
+      vec_word = np.zeros(embedding_len)
+    vec = np.append(vec_word, convert_one_hot_single(pos_dict.index(pos) + 1, pos_len))
+    result.append(vec)
+
+  if (sent_len - len(result)) > 0:
+    vec_pad = np.zeros((sent_len - len(result), embedding_len + pos_len))
+    return np.concatenate((vec_pad, result))
+  return result[:sent_len]
 
 # Load logger
-# logger = Logger('crf-runner')
+logger = Logger('crf-wv-runner')
+wv = load_word2vec_wv(embedding_fn)
 
 # Read words
 X = load_text_file(data_X_fn, as_words=True)
+
 X = [x for x in X if x[0] is not '']
-X = extract_pos_words_list(X)
+# X = extract_pos_words_list(X)
+
+X = np.array([convert_sent_to_vectors(x, wv, data_pos_tags, sent_len=sent_len) for x in X])
+print(X.shape)
+
 y = load_text_file(data_y_fn)
 y = [x for x in y if len(x) > 0]
 
@@ -163,14 +194,14 @@ y = [x for x in y if len(x) > 0]
 # write_dict(y, data_y_tags)
 
 logger = Logger('bigrucrf')
-
+pos_len = len(load_text_file(data_pos_tags)) + 1
 
 # Convert pos array into index array
-X, pos_len = convert_pos_to_idx(X, data_pos_tags)
-X = pad_X(X, sent_len)
-X = np.array(X)
-# X = convert_one_hot(np.array(X), pos_len)
-# print(X.shape)
+# X, pos_len = convert_pos_to_idx(X, data_pos_tags)
+# X = pad_X(X, sent_len)
+# X = np.array(X)
+# # X = convert_one_hot(np.array(X), pos_len)
+# # print(X.shape)
 y, ans_len = convert_pos_to_idx(y, data_y_tags, y=True)
 # print(ans_len)
 y = convert_one_hot(np.array(y), ans_len, y=True)
@@ -185,12 +216,12 @@ y_train = y[:split_index]
 y_test = y[split_index:]
 # print(X_train[100])
 # print(X_test.shape)
-sent_len = X_train.shape[1]
 
 # Keras
-# model = BigruCrf(pos_len, sent_len)
-# model.fit(X_train, y_train, X_test, y_test, epochs=5)
-# model.save(model_path)
+model = BigruCrf(pos_len, sent_len)
+model.fit(X_train, y_train, X_test, y_test, epochs=5)
+model.save(model_path)
+del model
 
 # Test
 model = load_keras_model(model_path)

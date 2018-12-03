@@ -7,9 +7,9 @@ from keras_contrib.layers import CRF
 import numpy as np
 
 class BigruCrf:
-  def __init__(self, input_size, max_len, embedding_size=32, gru_size=64):
+  def __init__(self, input_size, max_len, embedding_size=32, gru_size=128):
     self.model = Sequential()
-    self.model.add(Embedding(input_size, embedding_size, input_length=max_len))
+    # self.model.add(Embedding(input_size, embedding_size, input_length=max_len))
     self.model.add(Bidirectional(GRU(units=gru_size, return_sequences=True,
                                recurrent_dropout=0.2, dropout=0.2)))
     self.model.add(TimeDistributed(Dense(gru_size, activation="relu")))
@@ -19,7 +19,7 @@ class BigruCrf:
     self.model.add(crf)
     self.model.compile(loss=crf.loss_function, optimizer='adam', metrics=['accuracy'])
 
-    self.model.summary()
+    # self.model.summary()
 
   def fit(self, X, y, X_test, y_test, epochs=1):
     class evaluateIter(Callback):
